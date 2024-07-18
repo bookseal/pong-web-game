@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
@@ -28,6 +29,8 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     networks:
       - pong_network
+    ports:
+        - "${DB_PORT:-5432}:5432"
 
 volumes:
   postgres_data:
