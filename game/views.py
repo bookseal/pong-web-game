@@ -1,62 +1,42 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from .models import Player, Game, Tournament, Room
-from rest_framework import status
+import logging
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Player
+import json
 
-# SPA view
-def spa_index(request):
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
+def index(request):
     return render(request, 'game/index.html')
 
-# API views
-@api_view(['GET'])
-def api_home(request):
-    return Response({'message': 'Welcome to the Game API!'})
+@csrf_exempt
+def add_player(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            username = data.get('username')
+            games_played = data.get('games_played', 0)
+            games_won = data.get('games_won', 0)
 
-@api_view(['GET'])
-def api_game(request):
-    # logic about game
-    return Response({'message': 'Game data'})
+            if not username:
+                return JsonResponse({'error': 'Username is required'}, status=400)
 
-@api_view(['GET'])
-def api_tournament(request):
-    # logic about tournament
-    return Response({'message': 'Tournament data'})
+            player, created = Player.objects.get_or_create(
+                username=username,
+                defaults={'games_played': games_played, 'games_won': games_won}
+            )
 
-@api_view(['GET'])
-def api_room_list(request):
-    rooms = Room.objects.all()
-    data = [{'id': room.id, 'name': room.name, 'current_players': room.current_players, 'max_players': room.max_players} for room in rooms]
-    return Response(data)
+            if not created:
+                return JsonResponse({'error': 'Player with this username already exists'}, status=400)
 
-@api_view(['POST'])
-def api_create_room(request):
-    name = request.data.get('name')
-    max_players = request.data.get('max_players', 2)
-    if name:
-        room = Room.objects.create(name=name, max_players=max_players)
-        return Response({'id': room.id, 'name': room.name, 'current_players': room.current_players, 'max_players': room.max_players}, status=status.HTTP_201_CREATED)
-    return Response({'error': 'Room name is required'}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'message': 'Player created successfully'}, status=201)
 
-@api_view(['POST'])
-def api_join_room(request, room_id):
-    try:
-        room = Room.objects.get(id=room_id)
-        if room.current_players < room.max_players:
-            room.current_players += 1
-            room.save()
-            return Response({'message': f'Joined room {room.name}'})
-        else:
-            return Response({'error': 'Room is full'}, status=status.HTTP_400_BAD_REQUEST)
-    except Room.DoesNotExist:
-        return Response({'error': 'Room not found'}, status=status.HTTP_404_NOT_FOUND)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
 
-@api_view(['POST'])
-def create_game(request):
-    # Logic to create a new game
-    return Response({'message': 'New game created'})
-
-@api_view(['POST'])
-def join_tournament(request):
-    # Logic to join a tournament
-    return Response({'message': 'Joined tournament'})
