@@ -1,0 +1,17 @@
+.error-message {
+    color: red;
+}
+
+/* 오버라이드: 부트스트랩의 기본 미디어 쿼리 설정 */
+@media (max-width: 990px) {
+    .navbar .navbar-collapse {
+        display: flex !important;
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+
+    .navbar .btn {
+        display: inline-block !important;
+        margin-left: 10px;
+    }
+}

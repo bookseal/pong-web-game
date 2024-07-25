@@ -35,6 +35,36 @@ function init() {
     document.addEventListener('keydown', onKeyDown);
 }
 
+function checkPlayer(playerNumber) {
+    console.log("checkPlayer function called for player", playerNumber); // 추가
+    const playerName = document.getElementById(`player${playerNumber}Name`).value;
+    console.log("Player name:", playerName); // 추가
+
+    fetch(`/check_player/${playerName}/`)
+        .then(response => {
+            console.log("Response received:", response); // 추가
+            return response.json();
+        })
+        .then(data => {
+            console.log("Data received:", data); // 추가
+            const statsElement = document.getElementById(`player${playerNumber}Stats`);
+            if (data.error) {
+                statsElement.innerText = `Error: No user found`;
+                statsElement.classList.add("error-message");
+            } else {
+                statsElement.innerText =
+                    `Username: ${data.username}\nGames Played: ${data.games_played}\nGames Won: ${data.games_won}`;
+                statsElement.classList.remove("error-message");
+            }
+        })
+        .catch(error => {
+            console.log("Error:", error); // 추가
+            const statsElement = document.getElementById(`player${playerNumber}Stats`);
+            statsElement.innerText = `Error: ${error}`;
+            statsElement.classList.add("error-message");
+        });
+}
+
 function onKeyDown(event) {
     if (!gameStarted) return;
 
@@ -58,66 +88,6 @@ function animate() {
     requestAnimationFrame(animate);
     updateBall();
     renderer.render(scene, camera);
-}
-
-function checkPlayer(playerNumber) {
-    // const playerName = document.getElementById(`player${playerNumber}Name`).value.trim();
-    // if (playerName === '') {
-    //     alert('Please enter a player name');
-    //     return;
-    // }
-    //
-    // fetch('/api/check_player/', {
-    //     method: 'POST',
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //         'X-CSRFToken': getCookie('csrftoken')
-    //     },
-    //     body: JSON.stringify({ player_name: playerName })
-    // })
-    // .then(response => response.json())
-    // .then(data => {
-    //     if (data.status === 'success') {
-    //         document.getElementById(`player${playerNumber}Stats`).innerHTML = `
-    //             Games Played: ${data.games_played}<br>
-    //             Games Won: ${data.games_won}
-    //         `;
-    //         if (playerNumber === 1) {
-    //             player1Name = playerName;
-    //         } else {
-    //             player2Name = playerName;
-    //         }
-    //         checkBothPlayersReady();
-    //     } else {
-    //         alert('Error: ' + data.message);
-    //     }
-    // })
-    // .catch(error => {
-    //     console.error('Error:', error);
-    //     alert('An error occurred while checking the player');
-    // });
-}
-
-function checkBothPlayersReady() {
-    if (player1Name && player2Name) {
-        document.getElementById('startButton').style.display = 'block';
-    }
-}
-
-// CSRF token 가져오기 함수
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
 }
 
 function updateBall() {
@@ -146,20 +116,49 @@ function updateBall() {
     }
 }
 
-function resetBall() {
-    ball.position.set(0, 0, 0);
-    ballSpeed.x = Math.random() > 0.5 ? 0.1 : -0.1; // 속도를 증가시킴
-    ballSpeed.y = (Math.random() - 0.5) * 0.1; // y축 속도도 증가시킴
-}
-
 function checkWinner() {
     if (player1Score === 1 || player2Score === 1) {
         gameStarted = false;
         const winner = player1Score === 1 ? player1Name : player2Name;
+        const loser = player1Score === 1 ? player2Name : player1Name;
         displayWinner(winner);
+
+        updatePlayerStats(winner, loser);
     } else {
         resetBall();
     }
+}
+
+function updatePlayerStats(winner, loser) {
+    fetch('/update_winner/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            winner: winner,
+            loser: loser
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            console.error(`Error updating player stats: ${data.error}`);
+        } else {
+            displayPlayerStats(data.winner, 1);
+            displayPlayerStats(data.loser, 2);
+        }
+    })
+    .catch(error => {
+        console.error('Error updating player stats:', error);
+    });
+}
+
+function displayPlayerStats(player, playerNumber) {
+    const statsElement = document.getElementById(`player${playerNumber}Stats`);
+    statsElement.innerText =
+        `Username: ${player.username}\nGames Played: ${player.games_played}\nGames Won: ${player.games_won}`;
 }
 
 function displayWinner(winner) {
@@ -190,6 +189,17 @@ function restartGame() {
     document.getElementById('gameContainer').onclick = null;
 }
 
+function resetBall(slow = false) {
+    ball.position.set(0, 0, 0);
+    if (slow) {
+        ballSpeed.x = Math.random() > 0.5 ? 0.05 : -0.05; // 느린 속도 설정
+        ballSpeed.y = (Math.random() - 0.5) * 0.05; // y축 속도도 느리게 설정
+    } else {
+        ballSpeed.x = Math.random() > 0.5 ? 0.1 : -0.1; // 일반 속도 설정
+        ballSpeed.y = (Math.random() - 0.5) * 0.1; // y축 속도도 일반 속도 설정
+    }
+}
+
 function startGame() {
     player1Name = document.getElementById('player1Name').value.trim();
     player2Name = document.getElementById('player2Name').value.trim();
@@ -204,12 +214,82 @@ function startGame() {
         return;
     }
 
-    gameStarted = true;
-    document.getElementById('startButton').style.display = 'none';
-    resetBall(); // 게임 시작 시 공 리셋
+    checkPlayerExistence(player1Name, function(player1Exists) {
+        if (!player1Exists) {
+            document.getElementById('nameError').textContent = `Player 1 (${player1Name}) does not exist.`;
+            return;
+        }
 
-    console.log(`Game started with ${player1Name} (W/S keys) and ${player2Name} (Arrow keys)`);
+        checkPlayerExistence(player2Name, function(player2Exists) {
+            if (!player2Exists) {
+                document.getElementById('nameError').textContent = `Player 2 (${player2Name}) does not exist.`;
+                return;
+            }
+
+            // Both players exist, start the game
+            gameStarted = true;
+            document.getElementById('startButton').style.display = 'none';
+            document.getElementById('startBeginnerButton').style.display = 'none';
+            resetBall(); // 게임 시작 시 공 리셋
+
+            console.log(`Game started with ${player1Name} (W/S keys) and ${player2Name} (Arrow keys)`);
+        });
+    });
 }
+
+function startGameForBeginner() {
+    player1Name = document.getElementById('player1Name').value.trim();
+    player2Name = document.getElementById('player2Name').value.trim();
+
+    if (player1Name === '' || player2Name === '') {
+        document.getElementById('nameError').textContent = 'Both player names are required.';
+        return;
+    }
+
+    if (player1Name === player2Name) {
+        document.getElementById('nameError').textContent = 'Player names must be different.';
+        return;
+    }
+
+    checkPlayerExistence(player1Name, function(player1Exists) {
+        if (!player1Exists) {
+            document.getElementById('nameError').textContent = `Player 1 (${player1Name}) does not exist.`;
+            return;
+        }
+
+        checkPlayerExistence(player2Name, function(player2Exists) {
+            if (!player2Exists) {
+                document.getElementById('nameError').textContent = `Player 2 (${player2Name}) does not exist.`;
+                return;
+            }
+
+            // Both players exist, start the game for beginners
+            gameStarted = true;
+            document.getElementById('startButton').style.display = 'none';
+            document.getElementById('startBeginnerButton').style.display = 'none';
+            resetBall(true); // 게임 시작 시 공 리셋 (느린 속도로)
+
+            console.log(`Beginner game started with ${player1Name} (W/S keys) and ${player2Name} (Arrow keys)`);
+        });
+    });
+}
+
+function checkPlayerExistence(playerName, callback) {
+    fetch(`/check_player/${playerName}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                callback(false);
+            } else {
+                callback(true);
+            }
+        })
+        .catch(error => {
+            console.error('Error checking player existence:', error);
+            callback(false);
+        });
+}
+
 init();
 animate();
 

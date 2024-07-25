@@ -3,9 +3,38 @@
         <a class="navbar-brand" href="#">Pong Web Game</a>
         <div class="collapse navbar-collapse justify-content-center"></div>
         <div class="collapse navbar-collapse justify-content-end">
-            <button id="createPlayerButton" class="btn btn-outline-primary me-2" type="button" data-bs-toggle="modal" data-bs-target="#createPlayerModal">Create New Player</button>
-            <button id="loginButton" class="btn btn-outline-success me-2" type="button">Login</button>
-            <button id="tournamentButton" class="btn btn-outline-info" type="button">Tournament</button>
+            <button id="createPlayerButton" class="btn btn-outline-primary me-2" type="button" data-bs-toggle="modal" data-bs-target="#createPlayerModal" >Create New Player</button>
+            <button id="tournamentButton" class="btn btn-outline-info" type="button" onclick="tournament()">Tournament</button>
+            <button id="logoutButton" class="btn btn-outline-danger me-2" type="button" onclick="logout()">Logout</button>
         </div>
     </div>
 </nav>
+
+<!-- Create Player Modal -->
+<div class="modal fade" id="createPlayerModal" tabindex="-1" aria-labelledby="createPlayerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createPlayerModalLabel">Create New Player</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createPlayerForm">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="gamesPlayed" class="form-label">Games Played</label>
+                        <input type="number" class="form-control" id="gamesPlayed" value="0">
+                    </div>
+                    <div class="mb-3">
+                        <label for="gamesWon" class="form-label">Games Won</label>
+                        <input type="number" class="form-control" id="gamesWon" value="0">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

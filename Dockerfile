@@ -19,7 +19,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt /app
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-COPY . /app
 
 RUN mkdir -p /app/staticfiles
 
@@ -27,6 +26,8 @@ RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -keyout /etc/ssl/private/nginx-selfsigned.key \
     -out /etc/ssl/certs/nginx-selfsigned.crt \
     -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=localhost"
+
+COPY . /app
 
 COPY nginx.conf /etc/nginx/sites-available/default
 
