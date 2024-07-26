@@ -1,15 +1,17 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie, csrf_protect
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 import json
 import requests
 import logging
 from django.contrib.auth import get_user_model, login, logout as django_logout
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
@@ -18,12 +20,41 @@ from .models import Player
 User = get_user_model()
 logger = logging.getLogger(__name__)
 
-# Index view
+def hello_world(request):
+    return HttpResponse("Hello, World!2")
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
 def index(request):
-    if request.session.get('is_authenticated'):
-        user_data = request.session.get('user_data')
+    try:
+        logger.info("index view called")  # 로그 출력
+        # JWT 인증을 통해 사용자 정보 가져오기
+        jwt_auth = JWTAuthentication()
+        user_auth = jwt_auth.authenticate(request)
+
+        if user_auth is None:
+            logger.info("User is not authenticated, redirecting to login")
+            return render(request, 'login.html')
+
+        user, token = user_auth
+
+        # 사용자 정보와 함께 페이지 렌더링
+        user_data = {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name
+        }
+        logger.info(f"User {user.username} authenticated successfully")
         return render(request, 'game/index.html', {'user_data': user_data})
-    else:
+
+    except AuthenticationFailed as e:
+        logger.error(f"Authentication failed: {str(e)}")
+        return render(request, 'login.html')
+
+    except Exception as e:
+        logger.exception(f"Unexpected error: {str(e)}")
         return render(request, 'login.html')
 
 # Protected view
@@ -145,13 +176,18 @@ def auth_login_view(request):
     auth_url = f'https://api.intra.42.fr/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&scope={scope}&response_type=code'
     return JsonResponse({'auth_url': auth_url})
 
+import pyotp
+import qrcode
+import io
+from django.core.files.base import ContentFile
 # Callback view
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def callback(request):
     code = request.GET.get('code')
     if not code:
         logger.error("No authorization code provided in callback")
-        return redirect('login')
+        return redirect('login/')
 
     try:
         token_url = 'https://api.intra.42.fr/oauth/token'
@@ -167,7 +203,7 @@ def callback(request):
 
         if 'access_token' not in token_json:
             logger.error(f"Failed to obtain access token: {token_json}")
-            return redirect('login')
+            return redirect('login/')
 
         access_token = token_json['access_token']
 
@@ -178,7 +214,7 @@ def callback(request):
 
         if 'login' not in user_data:
             logger.error(f"Failed to obtain user data: {user_data}")
-            return redirect('login')
+            return redirect('login/')
 
         user, created = User.objects.get_or_create(
             username=user_data['login'],
@@ -189,16 +225,22 @@ def callback(request):
             }
         )
 
-        login(request, user)
+        if not user.is_2fa_enabled:
+            otp_secret = pyotp.random_base32()
+            user.otp_secret = otp_secret
+            user.save()
 
-        request.session['is_authenticated'] = True
-        request.session['user_data'] = {
-            'id': user.id,
-            'username': user.username,
-            'email': user.email,
-            'first_name': user.first_name,
-            'last_name': user.last_name
-        }
+            totp = pyotp.TOTP(otp_secret)
+            qr_url = totp.provisioning_uri(name=user.username, issuer_name="Pong Game")
+            qr = qrcode.make(qr_url)
+            buffer = io.BytesIO()
+            qr.save(buffer, format="PNG")
+            qr_image = buffer.getvalue()
+
+            response = render(request, 'callback.html', {'qr_image': qr_image})
+            return response
+
+        login(request, user)
 
         refresh = RefreshToken.for_user(user)
 
@@ -206,12 +248,36 @@ def callback(request):
         response.set_cookie('access_token', str(refresh.access_token), httponly=True, secure=True, samesite='Lax')
         response.set_cookie('refresh_token', str(refresh), httponly=True, secure=True, samesite='Lax')
 
+        # Add tokens to the response for the client to store them
+        response['access_token'] = str(refresh.access_token)
+        response['refresh_token'] = str(refresh)
+
         logger.info(f"User {user.username} successfully authenticated and redirected to index")
         return response
 
     except Exception as e:
         logger.exception(f"Error in callback: {str(e)}")
-        return redirect('login')
+        return redirect('login/')
+@csrf_exempt
+@api_view(['POST'])
+def verify_2fa(request):
+    try:
+        otp_code = request.data.get('otp_code')
+        user = request.user
+        if not user.is_authenticated or not user.otp_secret:
+            return Response({'error': 'Invalid request'}, status=status.HTTP_400_BAD_REQUEST)
+
+        totp = pyotp.TOTP(user.otp_secret)
+        if totp.verify(otp_code):
+            user.is_2fa_enabled = True
+            user.save()
+            return Response({'success': 'OTP verified successfully'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
+
+    except Exception as e:
+        logger.exception(f"Error in verify_2fa: {str(e)}")
+        return Response({'error': 'Failed to verify OTP'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # Get CSRF token
 @api_view(['GET'])

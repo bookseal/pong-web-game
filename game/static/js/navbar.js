@@ -67,7 +67,7 @@ async function logout() {
         const accessToken = localStorage.getItem('access_token');
         const refreshToken = localStorage.getItem('refresh_token');
 
-        const response = await fetch('/api/logout/', {
+        const response = await fetch('/logout/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ async function logout() {
             console.error('Logout failed:', errorText);
             // 401 오류 발생 시 강제 로그아웃 처리
             if (response.status === 401) {
-                await fetch('/api/force_logout/', {
+                await fetch('/force_logout/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

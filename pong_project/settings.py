@@ -3,8 +3,17 @@ from dotenv import load_dotenv
 from pathlib import Path
 from django.conf import settings
 
-
+# BASE_DIR 설정
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# STATICFILES_DIRS를 Path 객체를 사용하여 설정
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'game/static')
+]
 
 load_dotenv()
 
@@ -28,12 +37,8 @@ INSTALLED_APPS = [
     'game',
     'corsheaders',
     'rest_framework_simplejwt.token_blacklist',
-
 ]
 
-# settings.py
-
-# 세션 엔진 설정 (기본적으로 데이터베이스를 사용)
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 # 세션 쿠키 이름
@@ -44,12 +49,16 @@ SESSION_COOKIE_AGE = 60 * 30
 
 # 세션이 만료된 후에도 유지할지 여부
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
 }
-
 
 LOGGING = {
     'version': 1,
@@ -99,6 +108,7 @@ SIMPLE_JWT = {
 
     'JTI_CLAIM': 'jti',
 }
+
 CSRF_COOKIE_SAMESITE = 'Lax'  # 또는 'Strict'
 SESSION_COOKIE_SAMESITE = 'Lax'  # 또는 'Strict'
 CSRF_COOKIE_HTTPONLY = True
@@ -136,12 +146,6 @@ TEMPLATES = [
     },
 ]
 
-STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static")
-]
 WSGI_APPLICATION = 'pong_project.wsgi.application'
 
 DATABASES = {
@@ -156,8 +160,8 @@ DATABASES = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:8000',
-    'http://127.0.0.1:8000'
+    'https://localhost:8000',
+    'https://127.0.0.1:8000'
 ]
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -188,3 +192,14 @@ USE_I18N = True
 USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# settings.py
+AUTH_USER_MODEL = 'game.CustomUser'
+
+SECURE_SSL_REDIRECT = True
+SECURE_HSTS_SECONDS = 3600
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

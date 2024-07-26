@@ -49,7 +49,7 @@ async function apiRequest(url, method = 'GET', body = null) {
                 response = await fetch(url, { ...options, headers });
             } else {
                 // 갱신 실패 시 로그인 페이지로 리다이렉트
-                window.location.href = '/api/login';
+                window.location.href = '/login';
                 return;
             }
         }
@@ -73,7 +73,7 @@ async function refreshAccessToken() {
     }
 
     try {
-        const response = await fetch('/api/token/refresh/', {
+        const response = await fetch('/token/refresh/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

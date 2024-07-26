@@ -1,9 +1,24 @@
+
 services:
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+    networks:
+      - pong_network
+    volumes:
+      - static_volume:/app/staticfiles
+      - ./nginx.conf:/etc/nginx/nginx.conf
+
   backend:
     build:
       context: .
       dockerfile: Dockerfile
-    command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
@@ -30,7 +45,7 @@ services:
     networks:
       - pong_network
     ports:
-        - "${DB_PORT:-5432}:5432"
+      - "${DB_PORT:-5432}:5432"
 
 volumes:
   postgres_data:

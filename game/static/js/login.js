@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function fetch42AuthUrl() {
-    fetch('api/login/')
+    fetch('login/')
         .then(response => response.json())
         .then(data => {
             if (data.auth_url) {
