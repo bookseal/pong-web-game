@@ -175,22 +175,29 @@ def get_csrf_token(request):
 from django.contrib.auth import logout as auth_logout
 # Logout view
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
+@ensure_csrf_cookie
 def logout_view(request):
     try:
-        # Get the refresh token from the cookie
-        refresh_token = request.COOKIES.get('refresh_token')
-
-        if refresh_token:
-            # Blacklist the refresh token
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-
-        # Clear the session
-        request.session.flush()
-
-        # Logout the user
-        auth_logout(request)
+        # Check if user is authenticated via session
+        if request.user.is_authenticated:
+            username = request.user.username
+            # Clear the session
+            request.session.flush()
+            # Logout the user
+            auth_logout(request)
+        else:
+            # If not authenticated via session, check for JWT
+            refresh_token = request.COOKIES.get('refresh_token')
+            if refresh_token:
+                try:
+                    token = RefreshToken(refresh_token)
+                    token.blacklist()
+                    username = token['user_id']  # Assuming user_id is stored in the token
+                except Exception as e:
+                    logger.error(f"Error blacklisting token: {str(e)}")
+            else:
+                return Response({"detail": "No active login session found."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Prepare the response
         response = Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
@@ -199,13 +206,12 @@ def logout_view(request):
         response.delete_cookie('access_token', domain=settings.SESSION_COOKIE_DOMAIN, samesite='Lax')
         response.delete_cookie('refresh_token', domain=settings.SESSION_COOKIE_DOMAIN, samesite='Lax')
 
-        logger.info(f"User {request.user.username} successfully logged out")
+        logger.info(f"User {username} successfully logged out")
         return response
 
     except Exception as e:
         logger.error(f"Logout error: {str(e)}")
         return Response({"detail": "An error occurred during logout."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-# Force logout view
 @api_view(['POST'])
 def force_logout(request):
     try:
