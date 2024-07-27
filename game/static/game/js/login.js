@@ -8,6 +8,7 @@ function fetch42AuthUrl() {
     fetch('login/')
         .then(response => response.json())
         .then(data => {
+            console.log('Auth URL data:', data);  // 추가된 로그
             if (data.auth_url) {
                 window.location.href = data.auth_url;
             } else {

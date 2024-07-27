@@ -31,8 +31,5 @@
           <div class="mt-3 text-center">
             <a href="{% url 'reset_session' %}" class="btn btn-danger">Reset Session</a>
         </div>
- <script>
-        // is_authenticated 값을 콘솔에 출력
-        console.log('is_authenticated:', {{ request.session.is_authenticated|yesno:"true,false" }});
-    </script>
+
 {% endblock %}

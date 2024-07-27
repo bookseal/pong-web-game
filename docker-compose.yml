@@ -1,3 +1,4 @@
+version: '3.8'
 
 services:
   nginx:
@@ -33,6 +34,9 @@ services:
     working_dir: /app
     environment:
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+    entrypoint: >
+      sh -c "python manage.py collectstatic --noinput &&
+             gunicorn --bind 0.0.0.0:8000 pong_project.wsgi:application"
 
   db:
     image: postgres:13

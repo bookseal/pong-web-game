@@ -62,50 +62,45 @@ function getCookie(name) {
     return cookieValue;
 }
 
-async function logout() {
-    try {
-        const accessToken = localStorage.getItem('access_token');
-        const refreshToken = localStorage.getItem('refresh_token');
+function logout() {
+    const csrftoken = getCookie('csrftoken');
 
-        const response = await fetch('/logout/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Authorization': `Bearer ${accessToken}`
-            },
-            body: JSON.stringify({ refresh_token: refreshToken }),
-            credentials: 'include'
-        });
-
+    fetch('/logout/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => {
         if (response.ok) {
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
             console.log('Logout successful');
-            window.location.href = 'index';
+            // Redirect to login page or home page
+            window.location.href = '/login/';
         } else {
-            const errorText = await response.text();
-            console.error('Logout failed:', errorText);
-            // 401 오류 발생 시 강제 로그아웃 처리
-            if (response.status === 401) {
-                await fetch('/force_logout/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken')
-                    },
-                    credentials: 'include'
-                });
-                localStorage.removeItem('access_token');
-                localStorage.removeItem('refresh_token');
-                window.location.href = 'index';
+            console.error('Logout failed');
+            // Handle logout failure (e.g., show an error message)
+        }
+    })
+    .catch(error => {
+        console.error('Error during logout:', error);
+        // Handle error (e.g., show an error message)
+    });
+}
+
+// Helper function to get CSRF token from cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
             }
         }
-    } catch (error) {
-        console.error('Logout error:', error);
-        // 에러 발생 시에도 로컬 스토리지를 정리하고 로그인 페이지로 이동
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        window.location.href = 'index';
     }
+    return cookieValue;
 }

@@ -10,12 +10,27 @@ from rest_framework import status
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 from .models import Player
+import pyotp
+import qrcode
+from io import BytesIO
+from django.http import HttpResponse
+from django.conf import settings
+from django.views.decorators.http import require_GET
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+import logging
+from .models import CustomUser
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -23,39 +38,6 @@ logger = logging.getLogger(__name__)
 def hello_world(request):
     return HttpResponse("Hello, World!2")
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def index(request):
-    try:
-        logger.info("index view called")  # 로그 출력
-        # JWT 인증을 통해 사용자 정보 가져오기
-        jwt_auth = JWTAuthentication()
-        user_auth = jwt_auth.authenticate(request)
-
-        if user_auth is None:
-            logger.info("User is not authenticated, redirecting to login")
-            return render(request, 'login.html')
-
-        user, token = user_auth
-
-        # 사용자 정보와 함께 페이지 렌더링
-        user_data = {
-            'id': user.id,
-            'username': user.username,
-            'email': user.email,
-            'first_name': user.first_name,
-            'last_name': user.last_name
-        }
-        logger.info(f"User {user.username} authenticated successfully")
-        return render(request, 'game/index.html', {'user_data': user_data})
-
-    except AuthenticationFailed as e:
-        logger.error(f"Authentication failed: {str(e)}")
-        return render(request, 'login.html')
-
-    except Exception as e:
-        logger.exception(f"Unexpected error: {str(e)}")
-        return render(request, 'login.html')
 
 # Protected view
 @api_view(['GET'])
@@ -174,152 +156,55 @@ def auth_login_view(request):
     redirect_uri = settings.REDIRECT_URI
     scope = 'public'
     auth_url = f'https://api.intra.42.fr/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&scope={scope}&response_type=code'
-    return JsonResponse({'auth_url': auth_url})
 
-import pyotp
-import qrcode
-import io
-from django.core.files.base import ContentFile
-# Callback view
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def callback(request):
-    code = request.GET.get('code')
-    if not code:
-        logger.error("No authorization code provided in callback")
-        return redirect('login/')
-
-    try:
-        token_url = 'https://api.intra.42.fr/oauth/token'
-        data = {
-            'grant_type': 'authorization_code',
-            'client_id': settings.CLIENT_ID,
-            'client_secret': settings.CLIENT_SECRET,
-            'code': code,
-            'redirect_uri': settings.REDIRECT_URI,
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # This is an AJAX request from login.js
+        return JsonResponse({'auth_url': auth_url})
+    else:
+        # This is a direct GET request to the login page
+        context = {
+            'auth_url': auth_url
         }
-        token_response = requests.post(token_url, data=data)
-        token_json = token_response.json()
-
-        if 'access_token' not in token_json:
-            logger.error(f"Failed to obtain access token: {token_json}")
-            return redirect('login/')
-
-        access_token = token_json['access_token']
-
-        user_url = 'https://api.intra.42.fr/v2/me'
-        headers = {'Authorization': f'Bearer {access_token}'}
-        user_response = requests.get(user_url, headers=headers)
-        user_data = user_response.json()
-
-        if 'login' not in user_data:
-            logger.error(f"Failed to obtain user data: {user_data}")
-            return redirect('login/')
-
-        user, created = User.objects.get_or_create(
-            username=user_data['login'],
-            defaults={
-                'email': user_data.get('email', ''),
-                'first_name': user_data.get('first_name', ''),
-                'last_name': user_data.get('last_name', '')
-            }
-        )
-
-        if not user.is_2fa_enabled:
-            otp_secret = pyotp.random_base32()
-            user.otp_secret = otp_secret
-            user.save()
-
-            totp = pyotp.TOTP(otp_secret)
-            qr_url = totp.provisioning_uri(name=user.username, issuer_name="Pong Game")
-            qr = qrcode.make(qr_url)
-            buffer = io.BytesIO()
-            qr.save(buffer, format="PNG")
-            qr_image = buffer.getvalue()
-
-            response = render(request, 'callback.html', {'qr_image': qr_image})
-            return response
-
-        login(request, user)
-
-        refresh = RefreshToken.for_user(user)
-
-        response = redirect('index')
-        response.set_cookie('access_token', str(refresh.access_token), httponly=True, secure=True, samesite='Lax')
-        response.set_cookie('refresh_token', str(refresh), httponly=True, secure=True, samesite='Lax')
-
-        # Add tokens to the response for the client to store them
-        response['access_token'] = str(refresh.access_token)
-        response['refresh_token'] = str(refresh)
-
-        logger.info(f"User {user.username} successfully authenticated and redirected to index")
-        return response
-
-    except Exception as e:
-        logger.exception(f"Error in callback: {str(e)}")
-        return redirect('login/')
-@csrf_exempt
-@api_view(['POST'])
-def verify_2fa(request):
-    try:
-        otp_code = request.data.get('otp_code')
-        user = request.user
-        if not user.is_authenticated or not user.otp_secret:
-            return Response({'error': 'Invalid request'}, status=status.HTTP_400_BAD_REQUEST)
-
-        totp = pyotp.TOTP(user.otp_secret)
-        if totp.verify(otp_code):
-            user.is_2fa_enabled = True
-            user.save()
-            return Response({'success': 'OTP verified successfully'}, status=status.HTTP_200_OK)
-        else:
-            return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
-
-    except Exception as e:
-        logger.exception(f"Error in verify_2fa: {str(e)}")
-        return Response({'error': 'Failed to verify OTP'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-# Get CSRF token
+        return render(request, 'login.html', context)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 @ensure_csrf_cookie
 def get_csrf_token(request):
     return Response({"detail": "CSRF cookie set"})
 
+from django.contrib.auth import logout as auth_logout
 # Logout view
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def logout(request):
+def logout_view(request):
     try:
-        if request.auth and isinstance(request.auth, RefreshToken):
-            try:
-                token = request.auth
-                token.blacklist()
-            except AttributeError:
-                pass
+        # Get the refresh token from the cookie
+        refresh_token = request.COOKIES.get('refresh_token')
 
-        user = request.user
-        tokens = OutstandingToken.objects.filter(user_id=user.id)
-        for token in tokens:
-            BlacklistedToken.objects.get_or_create(token=token)
+        if refresh_token:
+            # Blacklist the refresh token
+            token = RefreshToken(refresh_token)
+            token.blacklist()
 
-        django_logout(request)
-
-        request.session['is_authenticated'] = False
-        request.session['user_data'] = None
+        # Clear the session
         request.session.flush()
 
-        response = Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
-        response.delete_cookie('access_token')
-        response.delete_cookie('refresh_token')
+        # Logout the user
+        auth_logout(request)
 
-        logger.info(f"User {user.username} successfully logged out")
+        # Prepare the response
+        response = Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
+
+        # Remove JWT cookies
+        response.delete_cookie('access_token', domain=settings.SESSION_COOKIE_DOMAIN, samesite='Lax')
+        response.delete_cookie('refresh_token', domain=settings.SESSION_COOKIE_DOMAIN, samesite='Lax')
+
+        logger.info(f"User {request.user.username} successfully logged out")
         return response
 
     except Exception as e:
-        logger.error(f"Logout error for user {request.user.username}: {str(e)}")
-        return Response({"error": "Failed to logout"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+        logger.error(f"Logout error: {str(e)}")
+        return Response({"detail": "An error occurred during logout."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 # Force logout view
 @api_view(['POST'])
 def force_logout(request):
@@ -349,3 +234,247 @@ def reset_session(request):
     response.delete_cookie('access_token')
     response.delete_cookie('refresh_token')
     return response
+
+
+import pyotp
+import qrcode
+import io
+from django.core.files.base import ContentFile
+def get_access_token(code):
+    token_url = 'https://api.intra.42.fr/oauth/token'
+    data = {
+        'grant_type': 'authorization_code',
+        'client_id': settings.CLIENT_ID,
+        'client_secret': settings.CLIENT_SECRET,
+        'code': code,
+        'redirect_uri': settings.REDIRECT_URI,
+    }
+    token_response = requests.post(token_url, data=data)
+    token_json = token_response.json()
+
+    if 'access_token' not in token_json:
+        logger.error(f"Failed to obtain access token: {token_json}")
+        return None
+
+    access_token = token_json['access_token']
+    logger.info(f"Access token obtained: {access_token}")
+    return access_token
+
+def get_user_data(access_token):
+    user_url = 'https://api.intra.42.fr/v2/me'
+    headers = {'Authorization': f'Bearer {access_token}'}
+    user_response = requests.get(user_url, headers=headers)
+    user_data = user_response.json()
+
+    if 'login' not in user_data:
+        logger.error(f"Failed to obtain user data: {user_data}")
+        return None
+
+    logger.info(f"User data obtained: ")
+    return user_data
+
+def create_or_update_user(user_data):
+    user, created = CustomUser.objects.get_or_create(
+        username=user_data['login'],
+        defaults={
+            'email': user_data.get('email', ''),
+            'first_name': user_data.get('first_name', ''),
+            'last_name': user_data.get('last_name', '')
+        }
+    )
+    logger.info(f"User {user.username} created: {created}")
+    return user
+
+import base64
+
+def generate_qr_code(user):
+    otp_secret = pyotp.random_base32()
+    user.otp_secret = otp_secret
+    user.save()
+    logger.info(f"OTP secret set for user {user.username}")
+
+    totp = pyotp.TOTP(otp_secret)
+    qr_url = totp.provisioning_uri(name=user.username, issuer_name="Pong Game")
+    qr = qrcode.make(qr_url)
+    buffer = io.BytesIO()
+    qr.save(buffer, format="PNG")
+    qr_image = base64.b64encode(buffer.getvalue()).decode("utf-8")
+    return qr_image
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def callback(request):
+    code = request.GET.get('code')
+    if not code:
+        logger.error("No authorization code provided in callback")
+        return redirect('login')
+
+    try:
+        logger.info("Callback function called")
+        access_token = get_access_token(code)
+        if not access_token:
+            return redirect('login')
+
+        user_data = get_user_data(access_token)
+        if not user_data:
+            return redirect('login')
+
+        user = create_or_update_user(user_data)
+
+        logger.info(f"user.is_2fa_enabled: {user.is_2fa_enabled}")
+        if not user.is_2fa_enabled:
+            qr_image = generate_qr_code(user)
+            return render(request, 'callback.html', {'qr_image': qr_image, 'user': user})
+
+        # User has already set up 2FA, set up session for 2FA verification
+        request.session['pending_user_id'] = user.id
+        return redirect('verify_2fa')
+
+    except Exception as e:
+        logger.exception(f"Error in callback: {str(e)}")
+        return redirect('login')
+
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import login
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.http import HttpRequest
+from rest_framework.request import Request
+import pyotp
+from .models import CustomUser
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def verify_2fa(request):
+    if request.method == 'GET':
+        user_id = request.session.get('pending_user_id')
+        if not user_id:
+            logger.error("No pending user found for 2FA verification")
+            return redirect('login')
+
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            logger.error(f"User not found for id: {user_id}")
+            return redirect('login')
+
+        # If user hasn't set up 2FA yet, generate QR code
+        if not user.is_2fa_enabled:
+            qr_image = generate_qr_code(user)
+            return render(request, 'callback.html', {'qr_image': qr_image, 'user': user, 'setup_mode': True})
+
+        # If user has already set up 2FA, just show the verification form
+        return render(request, 'callback.html', {'user': user, 'setup_mode': False})
+
+    if request.method == 'POST':
+        otp_code = request.data.get('otp_code')
+        username = request.data.get('username')
+
+        if not username:
+            logger.error("No username provided for 2FA verification")
+            return Response({'error': 'Username is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            logger.error(f"User not found: {username}")
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if not user.otp_secret:
+            logger.error(f"OTP secret not set for user: {username}")
+            return Response({'error': 'OTP secret not set'}, status=status.HTTP_400_BAD_REQUEST)
+
+        totp = pyotp.TOTP(user.otp_secret)
+        if totp.verify(otp_code):
+            logger.info(f"OTP verified successfully for user: {username}")
+            login(request, user)
+            user.is_2fa_enabled = True
+            user.save()
+
+            # Set the verified_2fa flag in the session
+            request.session['verified_2fa'] = True
+            request.session['user_id'] = user.id
+
+            # Generate new JWT tokens
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+
+            # Log JWT token generation
+            logger.info(f"JWT tokens generated for user: {username}")
+            logger.debug(f"Access token: {access_token[:10]}... (truncated)")
+
+            response = JsonResponse({
+                'success': 'OTP verified successfully',
+                'redirect': '/'  # Redirect to index page
+            })
+            response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='Lax')
+            response.set_cookie('refresh_token', str(refresh), httponly=True, secure=True, samesite='Lax')
+
+            logger.info(f"JWT tokens set in cookies for user: {username}")
+            logger.info(f"Redirecting user {username} to index page after successful 2FA verification")
+
+            return response
+        else:
+            logger.error(f"Invalid OTP for user: {username}")
+            return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def index(request):
+    try:
+        logger.info("index view called")
+
+        # Check session-based authentication first
+        user_id = request.session.get('user_id')
+        if user_id:
+            user = User.objects.get(id=user_id)
+            if request.session.get('verified_2fa'):
+                logger.info(f"User {user.username} authenticated via session")
+                user_data = {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name
+                }
+                return render(request, 'game/index.html', {'user_data': user_data})
+
+        # If session auth fails, try JWT authentication
+        jwt_auth = JWTAuthentication()
+        user_auth = jwt_auth.authenticate(request)
+
+        if user_auth is None:
+            logger.info("User is not authenticated, redirecting to login")
+            return redirect('login')
+
+        user, token = user_auth
+
+        if not user.is_2fa_enabled:
+            logger.info(f"User {user.username} has not completed 2FA setup, redirecting to 2FA setup")
+            return redirect('verify_2fa')
+
+        if not request.session.get('verified_2fa'):
+            logger.info(f"User {user.username} has not verified 2FA for this session, redirecting to 2FA verification")
+            return redirect('verify_2fa')
+
+        user_data = {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name
+        }
+        logger.info(f"User {user.username} authenticated successfully via JWT")
+        return render(request, 'game/index.html', {'user_data': user_data})
+
+    except AuthenticationFailed as e:
+        logger.error(f"Authentication failed: {str(e)}")
+        return redirect('login')
+
+    except Exception as e:
+        logger.exception(f"Unexpected error: {str(e)}")
+        return redirect('login')

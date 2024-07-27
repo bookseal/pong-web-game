@@ -12,14 +12,14 @@
     <div class="container mt-5">
         <h2 class="text-center">Login</h2>
         <div class="mt-3 text-center">
-            <button id="42LoginButton" class="btn btn-secondary">Login with 42Auth</button>
+            <a href="{{ auth_url }}" id="42LoginButton" class="btn btn-secondary">Login with 42Auth</a>
         </div>
         <div class="mt-3 text-center">
             <a href="{% url 'reset_session' %}" class="btn btn-danger">Reset Session</a>
         </div>
     </div>
-    <script type="module" src="{% static 'js/login.js' %}"></script>
-    <script type="module" src="{% static 'js/auth.js' %}"></script>
+{#    <script type="module" src="{% static 'game/js/login.js' %}"></script>#}
+    <script type="module" src="{% static 'game/js/auth.js' %}"></script>
     <script>
         // is_authenticated 값을 콘솔에 출력
         console.log('is_authenticated:', {{ request.session.is_authenticated|yesno:"true,false" }});

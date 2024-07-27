@@ -16,15 +16,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     && locale-gen en_US.UTF-8
 
-COPY requirements.txt /app
+COPY requirements.txt /app/
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-RUN mkdir -p /app/staticfiles
-
-COPY . /app
-
-RUN python manage.py collectstatic --noinput
+COPY . /app/
 
 EXPOSE 8000
-
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "pong_project.wsgi:application"]

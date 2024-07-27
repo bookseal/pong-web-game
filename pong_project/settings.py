@@ -12,7 +12,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # STATICFILES_DIRS를 Path 객체를 사용하여 설정
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'game/static')
+    os.path.join(BASE_DIR, 'game/static/game')
 ]
 
 load_dotenv()

@@ -1,29 +1,37 @@
-{% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2FA Authentication</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>2FA {% if setup_mode %}Setup{% else %}Verification{% endif %}</title>
+    <style>
+        #qr-code {
+            width: 50%;
+            height: auto;
+        }
+        #2fa-message {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h1 class="mb-4">2FA Authentication</h1>
-        <div id="2fa-message" class="alert alert-success" style="display: none;" role="alert">
-            OTP verified successfully. This window will close automatically.
-        </div>
-        <div id="2fa-setup">
-            <p>Use the QR code below to set up your authenticator app.</p>
-            <img id="qr-code" src="" alt="QR Code">
-            <div class="mt-3">
-                <label for="otp" class="form-label">Enter OTP code:</label>
-                <input type="text" id="otp" class="form-control" placeholder="Enter OTP code">
-                <button class="btn btn-primary mt-2" onclick="verify2FA()">Verify OTP</button>
-            </div>
-        </div>
+    <div id="2fa-setup">
+        <h2>{% if setup_mode %}Setup{% else %}Verify{% endif %} 2FA</h2>
+        {% if setup_mode %}
+            <p>Scan this QR code with your 2FA app:</p>
+            <img id="qr-code" src="data:image/png;base64,{{ qr_image }}" alt="QR Code">
+        {% endif %}
+        <p>Enter the OTP from your app:</p>
+        <form id="2fa-form">
+            <input type="hidden" id="username" name="username" value="{{ user.username }}">
+            <input type="text" id="otp" name="otp" placeholder="Enter OTP" required>
+            <button type="button" id="verify2FAButton">Verify</button>
+        </form>
     </div>
-    <script src="{% static 'js/2fa.js' %}"></script>
+    <div id="2fa-message">
+        <p>2FA {% if setup_mode %}setup{% else %}verification{% endif %} complete!</p>
+    </div>
+
+    <script src="/static/js/2fa.js"></script>
 </body>
 </html>
