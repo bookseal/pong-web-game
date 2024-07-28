@@ -1,13 +1,16 @@
+
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">Pong Web Game</a>
-        <div class="collapse navbar-collapse justify-content-center"></div>
-        <div class="collapse navbar-collapse justify-content-end">
-            <button id="createPlayerButton" class="btn btn-outline-primary me-2" type="button" data-bs-toggle="modal" data-bs-target="#createPlayerModal" >Create New Player</button>
-            <button id="tournamentButton" class="btn btn-outline-info" type="button" onclick="tournament()">Tournament</button>
-            <button id="logoutButton" class="btn btn-outline-danger me-2" type="button" onclick="logout()">Logout</button>
-        </div>
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#" id="homeLink">Pong Web Game</a>
+    <div class="collapse navbar-collapse justify-content-center">
+      <!-- Add any center-aligned items here -->
     </div>
+    <div class="collapse navbar-collapse justify-content-end">
+      <button class="btn btn-outline-primary me-2" id="createPlayerButton" data-bs-toggle="modal" data-bs-target="#createPlayerModal">Create New Player</button>
+      <button class="btn btn-outline-success me-2" id="tournamentButton" data-bs-toggle="modal" data-bs-target="#tournamentModal">Tournament</button>
+      <button class="btn btn-outline-danger" id="logoutButton">Logout</button>
+    </div>
+  </div>
 </nav>
 
 <!-- Create Player Modal -->
@@ -37,4 +40,57 @@
             </div>
         </div>
     </div>
+</div>
+
+<!-- New Tournament Modal -->
+<div class="modal fade" id="tournamentModal" tabindex="-1" aria-labelledby="tournamentModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="tournamentModalLabel">Start Tournament</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="player1Name" class="form-label">Player 1</label>
+            <div class="input-group">
+              <input type="text" class="form-control" id="tournamentPlayer1Name" required>
+              <button class="btn btn-outline-secondary" type="button" onclick="checkTournamentPlayer(1)">Confirm</button>
+            </div>
+            <div id="tournamentPlayer1Stats"></div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="player2Name" class="form-label">Player 2</label>
+            <div class="input-group">
+              <input type="text" class="form-control" id="tournamentPlayer2Name" required>
+              <button class="btn btn-outline-secondary" type="button" onclick="checkTournamentPlayer(2)">Confirm</button>
+            </div>
+            <div id="tournamentPlayer2Stats"></div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="player3Name" class="form-label">Player 3</label>
+            <div class="input-group">
+              <input type="text" class="form-control" id="tournamentPlayer3Name" required>
+              <button class="btn btn-outline-secondary" type="button" onclick="checkTournamentPlayer(3)">Confirm</button>
+            </div>
+            <div id="tournamentPlayer3Stats"></div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="player4Name" class="form-label">Player 4</label>
+            <div class="input-group">
+              <input type="text" class="form-control" id="tournamentPlayer4Name" required>
+              <button class="btn btn-outline-secondary" type="button" onclick="checkTournamentPlayer(4)">Confirm</button>
+            </div>
+            <div id="tournamentPlayer4Stats"></div>
+          </div>
+        </div>
+        <div id="tournamentError" class="text-danger"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="startTournamentButton">Start Tournament</button>
+      </div>
+    </div>
+  </div>
 </div>

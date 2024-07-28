@@ -38,7 +38,8 @@ logger = logging.getLogger(__name__)
 def hello_world(request):
     return HttpResponse("Hello, World!2")
 
-
+def start_game(request):
+    return render(request, 'game/index_spa.html')
 # Protected view
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

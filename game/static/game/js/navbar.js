@@ -31,6 +31,18 @@ function addPlayer(modal) {
     });
 }
 document.addEventListener("DOMContentLoaded", function() {
+     const homeLink = document.getElementById("homeLink");
+
+    // SPA 방식으로 루트 URL로 이동
+    homeLink.addEventListener("click", function(event) {
+        event.preventDefault(); // 기본 동작 방지
+        // SPA 루트 이동 로직 추가 (예: 페이지 변경 또는 컴포넌트 로드)
+        // 예시: mainContent.innerHTML = "Root content loaded...";
+        console.log("Navigated to root URL");
+        // 루트 콘텐츠 로드 함수를 호출하거나 페이지 상태를 변경
+        loadRootContent();
+    });
+
     const createPlayerModal = new bootstrap.Modal(document.getElementById('createPlayerModal'));
 
     document.getElementById("createPlayerButton").addEventListener("click", function() {
@@ -87,4 +99,24 @@ function getCookie(name) {
         }
     }
     return cookieValue;
+}
+
+function loadRootContent() {
+    fetch('start_game/')
+    .then(response => response.text())
+    .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        document.getElementById('mainContent').innerHTML = html;
+        // pong.js의 init() 함수 호출
+        if (typeof init === 'function') {
+            init();
+        }
+        if (typeof animate === 'function') {
+            animate();
+        }
+    })
+    .catch(error => {
+        console.error('Error loading root content:', error);
+    });
 }

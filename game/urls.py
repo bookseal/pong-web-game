@@ -6,6 +6,7 @@ urlpatterns = [
     path('hello/', views.hello_world, name='hello_world'),
     path('', views.index, name='index'),
     # path('index/', views.index, name='index'),
+    path('start_game/', views.start_game, name='start_game'),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('login/', views.auth_login_view, name='login'),

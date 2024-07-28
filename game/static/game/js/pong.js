@@ -124,6 +124,13 @@ function checkWinner() {
         displayWinner(winner);
 
         updatePlayerStats(winner, loser);
+
+        // Add this part for tournament logic
+        if (currentMatch < 3) {
+            winners.push(winner);
+            currentMatch++;
+            setTimeout(startNextMatch, 3000); // Start next match after 3 seconds
+        }
     } else {
         resetBall();
     }
@@ -161,6 +168,7 @@ function displayPlayerStats(player, playerNumber) {
         `Username: ${player.username}\nGames Played: ${player.games_played}\nGames Won: ${player.games_won}`;
 }
 
+
 function displayWinner(winner) {
     const winnerText = document.createElement('div');
     winnerText.style.position = 'absolute';
@@ -171,11 +179,18 @@ function displayWinner(winner) {
     winnerText.style.fontSize = '32px';
     winnerText.style.fontWeight = 'bold';
     winnerText.style.textAlign = 'center';
-    winnerText.innerHTML = `${winner} wins!<br><br>Click to play again`;
-    document.getElementById('gameContainer').appendChild(winnerText);
 
-    document.getElementById('gameContainer').onclick = restartGame;
+    if (isTournament) {
+        // 토너먼트 중에는 "Click to play again" 메시지를 표시하지 않음
+        winnerText.innerHTML = `${winner} wins!`;
+    } else {
+        winnerText.innerHTML = `${winner} wins!<br><br>Click to play again`;
+        document.getElementById('gameContainer').onclick = restartGame;
+    }
+
+    document.getElementById('gameContainer').appendChild(winnerText);
 }
+
 
 function restartGame() {
     player1Score = 0;
@@ -190,6 +205,11 @@ function restartGame() {
 }
 
 function resetBall(slow = false) {
+    player1Name = document.getElementById('player1Name').value.trim();
+    player2Name = document.getElementById('player2Name').value.trim();
+    console.log("Player 1 name:", player1Name); // 추가
+    console.log("Player 2 name:", player2Name); // 추가
+
     ball.position.set(0, 0, 0);
     if (slow) {
         ballSpeed.x = Math.random() > 0.5 ? 0.05 : -0.05; // 느린 속도 설정
@@ -203,6 +223,8 @@ function resetBall(slow = false) {
 function startGame() {
     player1Name = document.getElementById('player1Name').value.trim();
     player2Name = document.getElementById('player2Name').value.trim();
+    console.log("Player 1 name:", player1Name); // 추가
+    console.log("Player 2 name:", player2Name); // 추가
 
     if (player1Name === '' || player2Name === '') {
         document.getElementById('nameError').textContent = 'Both player names are required.';
