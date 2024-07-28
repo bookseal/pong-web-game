@@ -2,6 +2,8 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
+
 
 # BASE_DIR 설정
 BASE_DIR = Path(__file__).resolve().parent.parent
