@@ -19,4 +19,5 @@ urlpatterns = [
     path('add_player/', views.add_player, name='add_player'),
     path('check_player/<str:player_name>/', views.check_player, name='check_player'),
     path('update_winner/', views.update_winner, name='update_winner'),
+	path('reset_otp/', views.reset_otp, name='reset_otp'),  # 추가된 경로
 ]
