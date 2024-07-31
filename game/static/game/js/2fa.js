@@ -1,4 +1,17 @@
 document.addEventListener("DOMContentLoaded", function() {
+    const qrCodeImg = document.getElementById('qr-code');
+    if (qrCodeImg) {
+        console.log('QR code src:', qrCodeImg.src);
+        console.log('QR code src (first 100 chars):', qrCodeImg.src.substring(0, 100));
+    } else {
+        console.log('QR code image element not found');
+    }
+
+    const setupModeElement = document.querySelector('h2');
+    if (setupModeElement) {
+        console.log('Setup mode:', setupModeElement.textContent.includes('Setup'));
+    }
+
     const verifyButton = document.getElementById("verify2FAButton");
     if (verifyButton) {
         verifyButton.addEventListener("click", function(event) {

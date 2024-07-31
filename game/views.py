@@ -306,6 +306,9 @@ def generate_qr_code(user):
     buffer = io.BytesIO()
     qr.save(buffer, format="PNG")
     qr_image = base64.b64encode(buffer.getvalue()).decode("utf-8")
+    logger.info(f"Generated QR code for user {user.username}")
+    logger.info(f"QR code length: {len(qr_image)}")
+    logger.info(f"QR code preview: {qr_image[:50]}...")
     return qr_image
 
 
@@ -321,10 +324,12 @@ def callback(request):
         logger.info("Callback function called")
         access_token = get_access_token(code)
         if not access_token:
+            logger.error("Failed to obtain access token")
             return redirect('login')
 
         user_data = get_user_data(access_token)
         if not user_data:
+            logger.error("Failed to obtain user data")
             return redirect('login')
 
         user = create_or_update_user(user_data)
@@ -332,8 +337,13 @@ def callback(request):
         logger.info(f"user.is_2fa_enabled: {user.is_2fa_enabled}")
         if not user.is_2fa_enabled:
             qr_image = generate_qr_code(user)
-            return render(request, 'callback.html', {'qr_image': qr_image, 'user': user})
-
+            logger.info(f"QR image generated, length: {len(qr_image)}")
+            logger.info(f"QR image preview: {qr_image[:50]}...")
+            return render(request, 'callback.html', {
+                'qr_image': qr_image,
+                'user': user,
+                'setup_mode': True
+            })
         # User has already set up 2FA, set up session for 2FA verification
         request.session['pending_user_id'] = user.id
         return redirect('verify_2fa')
