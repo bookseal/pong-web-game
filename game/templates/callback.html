@@ -32,6 +32,91 @@
         <p>2FA {% if setup_mode %}setup{% else %}verification{% endif %} complete!</p>
     </div>
 
+
+<!--  -->
+	<!-- OTP 재발급을 위한 버튼과 스크립트 추가 -->
+	<button id="reset-otp-button">Reset OTP</button>
+    <img id="qr-code-image" alt="QR Code" style="display: none;">
+    <button id="done-button" style="display: none;">Done</button>
+
+    <script>
+        document.getElementById('reset-otp-button').addEventListener('click', function() {
+            const username = document.getElementById('username').value;  // 사용자 이름을 가져옴
+            fetch('/reset_otp/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({ username: username })  // 사용자 이름을 요청 본문에 포함
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.qr_image) {
+                    // 새로고침 없이 QR 코드를 업데이트
+                    document.getElementById('qr-code-image').src = 'data:image/png;base64,' + data.qr_image;
+                    document.getElementById('qr-code-image').style.display = 'block';
+                    document.getElementById('2fa-form').style.display = 'none';  // 입력 폼 숨김
+                    document.getElementById('reset-otp-button').style.display = 'none';  // 리셋 버튼 숨김
+                    document.getElementById('done-button').style.display = 'block';  // Done 버튼 표시
+                } else {
+                    alert('Failed to reset OTP.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById('verify2FAButton').addEventListener('click', function() {
+            const otpCode = document.getElementById('otp').value;
+            const username = document.getElementById('username').value;
+
+            fetch('/verify_otp/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ otp_code: otpCode, username: username }),
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('2fa-message').style.display = 'block';
+                    document.getElementById('2fa-form').style.display = 'none';
+                    setTimeout(function() {
+                        window.location.href = data.redirect;
+                    }, 2000);
+                } else {
+                    alert(data.error || 'Failed to verify OTP.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById('done-button').addEventListener('click', function() {
+            document.getElementById('qr-code-image').style.display = 'none';
+            document.getElementById('2fa-form').style.display = 'block';
+        });
+
+        // 페이지 로드 시 세션에서 QR 코드를 가져와 표시
+        window.onload = function() {
+            const qrImage = "{{ request.session.qr_image|default:'' }}";
+            if (qrImage) {
+                document.getElementById('qr-code-image').src = 'data:image/png;base64,' + qrImage;
+                document.getElementById('qr-code-image').style.display = 'block';
+                document.getElementById('2fa-form').style.display = 'none';  // 입력 폼 숨김
+                document.getElementById('reset-otp-button').style.display = 'none';  // 리셋 버튼 숨김
+                document.getElementById('done-button').style.display = 'block';  // Done 버튼 표시
+            }
+        };
+    </script>
+
+
+<!--  -->
+
+
     <script src="/static/js/2fa.js"></script>
 </body>
 </html>

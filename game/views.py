@@ -15,7 +15,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
-from .models import Player
+from .models import Player, CustomUser  # CustomUser 추가
 import pyotp
 import qrcode
 from io import BytesIO
@@ -485,3 +485,123 @@ def index(request):
     except Exception as e:
         logger.exception(f"Unexpected error: {str(e)}")
         return redirect('login')
+    
+
+###OTP 재발급 코드 (추가 07.30)
+### 여기에 새로운 reset_otp 함수 추가 ###
+@api_view(['POST'])
+@permission_classes([AllowAny])  # AllowAny로 수정하여 모든 사용자가 접근 가능하도록 함
+def reset_otp(request):
+    logger.info("reset_otp called")
+    try:
+        # 임시로 인증 여부를 체크하지 않음
+        user = request.user
+        if not user.is_authenticated:
+            # 비인증 사용자에 대해 임시 사용자 생성
+            user = User.objects.get(username=request.data.get('username'))  # 수정: 요청에서 사용자 이름 가져오기
+            logger.warning("Temporary user used for unauthenticated request")
+
+        logger.info(f"User {user.username} authenticated for OTP reset")
+        
+        # 새로운 OTP 비밀키 생성
+        otp_secret = pyotp.random_base32()
+        logger.info(f"New OTP secret generated: {otp_secret}")
+
+        user.otp_secret = otp_secret
+        user.save()
+        logger.info(f"OTP secret saved for user {user.username}")
+
+        # 새로운 QR 코드 생성
+        totp = pyotp.TOTP(otp_secret)
+        qr_url = totp.provisioning_uri(name=user.username, issuer_name="Pong Game")
+        qr = qrcode.make(qr_url)
+        buffer = io.BytesIO()
+        qr.save(buffer, format="PNG")
+        qr_image = base64.b64encode(buffer.getvalue()).decode("utf-8")
+        logger.info(f"QR code generated for user {user.username}")
+
+        # 세션에 QR 코드와 OTP 비밀키 저장
+        request.session['qr_image'] = qr_image
+        request.session['otp_secret'] = otp_secret
+
+        return Response({'qr_image': qr_image}, status=status.HTTP_200_OK)
+    except Exception as e:
+        logger.error(f"OTP 재발급 오류: {str(e)}")
+        return Response({"error": "OTP 재발급 실패"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+# verify_otp 함수 추가
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def reset_otp(request):
+    logger.info("reset_otp called")
+    try:
+        username = request.data.get('username')  # 요청에서 사용자 이름 가져오기
+        user = User.objects.get(username=username)
+
+        # 새로운 OTP 비밀키 생성
+        otp_secret = pyotp.random_base32()
+        logger.info(f"New OTP secret generated: {otp_secret}")
+
+        user.otp_secret = otp_secret
+        user.save()
+        logger.info(f"OTP secret saved for user {user.username}")
+
+        # 새로운 QR 코드 생성
+        totp = pyotp.TOTP(otp_secret)
+        qr_url = totp.provisioning_uri(name=user.username, issuer_name="Pong Game")
+        qr = qrcode.make(qr_url)
+        buffer = io.BytesIO()
+        qr.save(buffer, format="PNG")
+        qr_image = base64.b64encode(buffer.getvalue()).decode("utf-8")
+        logger.info(f"QR code generated for user {user.username}")
+
+        # 세션에 QR 코드와 OTP 비밀키 저장
+        request.session['qr_image'] = qr_image
+        request.session['otp_secret'] = otp_secret
+
+        return Response({'qr_image': qr_image}, status=status.HTTP_200_OK)
+    except Exception as e:
+        logger.error(f"OTP 재발급 오류: {str(e)}")
+        return Response({"error": "OTP 재발급 실패"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def verify_otp(request):
+    logger.info("verify_otp called")
+    try:
+        otp_code = request.data.get('otp_code')
+        username = request.data.get('username')
+
+        if not username:
+            logger.error("No username provided for 2FA verification")
+            return Response({'error': 'Username is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            logger.error(f"User not found: {username}")
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if not user.otp_secret:
+            logger.error(f"OTP secret not set for user: {username}")
+            return Response({'error': 'OTP secret not set'}, status=status.HTTP_400_BAD_REQUEST)
+
+        totp = pyotp.TOTP(user.otp_secret)
+        if totp.verify(otp_code):
+            logger.info(f"OTP verified successfully for user: {username}")
+            login(request, user)
+            user.is_2fa_enabled = True
+            user.save()
+
+            # Set the verified_2fa flag in the session
+            request.session['verified_2fa'] = True
+            request.session['user_id'] = user.id
+
+            logger.info(f"User {username} 2FA verification complete")
+            return JsonResponse({'success': 'OTP verified successfully', 'redirect': '/'})
+        else:
+            logger.error(f"Invalid OTP for user: {username}")
+            return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        logger.error(f"OTP verification error: {str(e)}")
+        return Response({"error": "OTP verification failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
