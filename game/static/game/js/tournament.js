@@ -1,7 +1,7 @@
 let tournamentPlayers = [];
 let currentMatch = 0;
 let winners = [];
-let isTournament = false; // 토너먼트 모드를 확인하는 플래그
+// let isTournament = false; // 토너먼트 모드를 확인하는 플래그
 
 function checkTournamentPlayer(playerNumber) {
     const playerName = document.getElementById(`tournamentPlayer${playerNumber}Name`).value;
@@ -27,39 +27,44 @@ function checkTournamentPlayer(playerNumber) {
 
 function startTournament() {
     tournamentPlayers = [];
-    isTournament = true; // 토너먼트 모드 시작
+
+    // Check if all player names are provided
     for (let i = 1; i <= 4; i++) {
         const playerName = document.getElementById(`tournamentPlayer${i}Name`).value.trim();
         if (playerName === '') {
             document.getElementById('tournamentError').textContent = 'All player names are required.';
-            return;
+            return false;
         }
         tournamentPlayers.push(playerName);
     }
 
+    // Check if all player names are unique
     if (new Set(tournamentPlayers).size !== tournamentPlayers.length) {
         document.getElementById('tournamentError').textContent = 'All player names must be different.';
-        return;
+        return false;
     }
 
+    // If we've reached this point, all checks have passed
+    isTournament = true; // Start tournament mode
     currentMatch = 0;
     winners = [];
-    startNextMatch();
+    document.getElementById('tournamentError').textContent = ''; // Clear any previous error messages
+    return true;
 }
 
 function startNextMatch() {
     if (currentMatch < 2) {
         const player1 = tournamentPlayers[currentMatch * 2];
         const player2 = tournamentPlayers[currentMatch * 2 + 1];
-        startGame(player1, player2);
+        startTournamentGame(player1, player2);
     } else if (currentMatch === 2) {
-        startGame(winners[0], winners[1]);
+        startTournamentGame(winners[0], winners[1]);
     } else {
         displayTournamentWinner(winners[2]);
     }
 }
 
-function startGame(player1, player2) {
+function startTournamentGame(player1, player2) {
     // Update the game UI with the current players
     document.getElementById('player1Name').value = player1;
     document.getElementById('player2Name').value = player2;
@@ -93,8 +98,6 @@ function displayTournamentWinner(winner) {
     };
 }
 
-
-
 document.addEventListener("DOMContentLoaded", function() {
     const tournamentModal = new bootstrap.Modal(document.getElementById('tournamentModal'));
 
@@ -103,7 +106,10 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     document.getElementById("startTournamentButton").addEventListener("click", function() {
-        startTournament();
-        tournamentModal.hide();
+        if (startTournament()) {
+            tournamentModal.hide();
+            startNextMatch();
+        }
+        // If startTournament() returns false, the modal will stay open
     });
 });

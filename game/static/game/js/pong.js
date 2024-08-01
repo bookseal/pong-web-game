@@ -3,6 +3,7 @@ let gameStarted = false;
 let player1Name, player2Name;
 let player1Score = 0, player2Score = 0;
 let ballSpeed = {x: 0.05, y: 0.02};
+let isTournament = false;
 
 function init() {
     scene = new THREE.Scene();
@@ -125,11 +126,14 @@ function checkWinner() {
 
         updatePlayerStats(winner, loser);
 
-        // Add this part for tournament logic
-        if (currentMatch < 3) {
-            winners.push(winner);
-            currentMatch++;
-            setTimeout(startNextMatch, 3000); // Start next match after 3 seconds
+        if (isTournament) {
+            if (currentMatch < 3) {
+                winners.push(winner);
+                currentMatch++;
+                setTimeout(startNextMatch, 3000);
+            }
+        } else {
+            document.getElementById('gameContainer').onclick = restartGame;
         }
     } else {
         resetBall();
@@ -181,7 +185,6 @@ function displayWinner(winner) {
     winnerText.style.textAlign = 'center';
 
     if (isTournament) {
-        // 토너먼트 중에는 "Click to play again" 메시지를 표시하지 않음
         winnerText.innerHTML = `${winner} wins!`;
     } else {
         winnerText.innerHTML = `${winner} wins!<br><br>Click to play again`;
@@ -190,7 +193,6 @@ function displayWinner(winner) {
 
     document.getElementById('gameContainer').appendChild(winnerText);
 }
-
 
 function restartGame() {
     player1Score = 0;
@@ -201,7 +203,9 @@ function restartGame() {
     if (winnerText) {
         winnerText.remove();
     }
-    document.getElementById('gameContainer').onclick = null;
+    if (!isTournament) {
+        document.getElementById('gameContainer').onclick = null;
+    }
 }
 
 function resetBall(slow = false) {
@@ -220,11 +224,17 @@ function resetBall(slow = false) {
     }
 }
 
-function startGame() {
-    player1Name = document.getElementById('player1Name').value.trim();
-    player2Name = document.getElementById('player2Name').value.trim();
-    console.log("Player 1 name:", player1Name); // 추가
-    console.log("Player 2 name:", player2Name); // 추가
+function startGame(tournamentPlayer1 = null, tournamentPlayer2 = null) {
+    if (isTournament) {
+        player1Name = tournamentPlayer1;
+        player2Name = tournamentPlayer2;
+    } else {
+        player1Name = document.getElementById('player1Name').value.trim();
+        player2Name = document.getElementById('player2Name').value.trim();
+    }
+
+    console.log("Player 1 name:", player1Name);
+    console.log("Player 2 name:", player2Name);
 
     if (player1Name === '' || player2Name === '') {
         document.getElementById('nameError').textContent = 'Both player names are required.';
@@ -252,13 +262,12 @@ function startGame() {
             gameStarted = true;
             document.getElementById('startButton').style.display = 'none';
             document.getElementById('startBeginnerButton').style.display = 'none';
-            resetBall(); // 게임 시작 시 공 리셋
+            resetBall();
 
             console.log(`Game started with ${player1Name} (W/S keys) and ${player2Name} (Arrow keys)`);
         });
     });
 }
-
 function startGameForBeginner() {
     player1Name = document.getElementById('player1Name').value.trim();
     player2Name = document.getElementById('player2Name').value.trim();
