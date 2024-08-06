@@ -4,13 +4,32 @@ from django.conf import settings
 w3 = Web3(Web3.HTTPProvider(settings.BLOCKCHAIN_PROVIDER_URL))
 
 def get_contract():
-    return w3.eth.contract(address=settings.CONTRACT_ADDRESS, abi=settings.CONTRACT_ABI)
+    # 체크섬 주소로 변환
+    checksum_address = Web3.toChecksumAddress(settings.CONTRACT_ADDRESS)
+    return w3.eth.contract(address=checksum_address, abi=settings.CONTRACT_ABI)
 
 def record_score(player_name, score):
     contract = get_contract()
-    tx_hash = contract.functions.recordScore(player_name, score).transact({'from': settings.ACCOUNT_ADDRESS})
+    # 체크섬 주소로 변환
+    checksum_address = Web3.toChecksumAddress(settings.ACCOUNT_ADDRESS)
+    tx_hash = contract.functions.recordScore(player_name, score).transact({
+        'from': checksum_address,
+        'gas': 2000000  # 가스 한도 추가
+    })
     w3.eth.wait_for_transaction_receipt(tx_hash)
 
+# def get_scores(player_name):
+#     contract = get_contract()
+#     return contract.functions.getScores(player_name).call()
 def get_scores(player_name):
     contract = get_contract()
-    return contract.functions.getScores(player_name).call()
+    try:
+        print(f"Attempting to get scores for player: {player_name}")
+        print(f"Contract address: {contract.address}")
+        print(f"Connected to network: {w3.isConnected()}")
+        scores, timestamps = contract.functions.getScores(player_name).call()
+        print(f"Raw scores: {scores}, timestamps: {timestamps}")
+        return scores, timestamps
+    except Exception as e:
+        print(f"Error in get_scores: {str(e)}")
+        return [], []

@@ -1,36 +1,32 @@
 {% extends 'base.html' %}
-
 {% block content %}
 <h1>점수 확인</h1>
-<form id="scoreCheckForm">
-    <input type="text" id="playerName" placeholder="플레이어 이름" required>
-    <button type="submit">점수 확인</button>
-</form>
+
+<input type="text" id="playerName" placeholder="플레이어 이름">
+<button onclick="checkScore()">점수 확인</button>
 <div id="scoreResult"></div>
 
 <script>
-document.getElementById('scoreCheckForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    var playerName = document.getElementById('playerName').value;
-    
+function checkScore() {
+    const playerName = document.getElementById('playerName').value;
     fetch(`/get_blockchain_scores/${playerName}/`)
         .then(response => response.json())
         .then(data => {
-            if (data.scores && data.scores.length > 0) {
-                let resultHtml = `<h2>${playerName}의 점수 기록:</h2><ul>`;
-                data.scores.forEach(([score, timestamp]) => {
-                    let date = new Date(timestamp * 1000);
-                    resultHtml += `<li>점수: ${score}, 시간: ${date.toLocaleString()}</li>`;
-                });
-                resultHtml += '</ul>';
-                document.getElementById('scoreResult').innerHTML = resultHtml;
+            if (data.error) {
+                document.getElementById('scoreResult').innerText = `오류: ${data.error}`;
             } else {
-                document.getElementById('scoreResult').innerHTML = '점수 기록을 찾을 수 없습니다.';
+                const scores = data.scores[0];  // 점수 배열
+                const timestamps = data.scores[1];  // 타임스탬프 배열
+                let result = '점수 기록:\n';
+                for (let i = 0; i < scores.length; i++) {
+                    result += `점수: ${scores[i]}, 시간: ${new Date(timestamps[i] * 1000).toLocaleString()}\n`;
+                }
+                document.getElementById('scoreResult').innerText = result;
             }
         })
         .catch(error => {
-            document.getElementById('scoreResult').innerHTML = '오류가 발생했습니다: ' + error;
+            document.getElementById('scoreResult').innerText = `오류: ${error}`;
         });
-});
+}
 </script>
 {% endblock %}

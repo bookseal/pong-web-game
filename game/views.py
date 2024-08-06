@@ -31,7 +31,7 @@ from django.views.decorators.csrf import csrf_exempt
 import logging
 from .models import CustomUser
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .blockchain_utils import record_score, get_scores  # 새로 추가
+from .blockchain_utils import record_score, get_scores
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -631,3 +631,22 @@ def verify_otp(request):
     except Exception as e:
         logger.error(f"OTP verification error: {str(e)}")
         return Response({"error": "OTP verification failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+# def get_blockchain_scores(request, player_name):
+#     try:
+#         scores = get_scores(player_name)
+#         return JsonResponse({'scores': scores})
+#     except Exception as e:
+#         return JsonResponse({'error': str(e)}, status=500)
+def get_blockchain_scores(request, player_name):
+    try:
+        print(f"Attempting to get blockchain scores for player: {player_name}")
+        scores = get_scores(player_name)
+        print(f"Scores retrieved: {scores}")
+        return JsonResponse({'scores': scores})
+    except Exception as e:
+        print(f"Error in get_blockchain_scores view: {str(e)}")
+        return JsonResponse({'error': str(e)}, status=500)
+
+def score_check_page(request):
+    return render(request, 'game/score_check.html')
