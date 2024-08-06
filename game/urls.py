@@ -19,5 +19,7 @@ urlpatterns = [
     path('add_player/', views.add_player, name='add_player'),
     path('check_player/<str:player_name>/', views.check_player, name='check_player'),
     path('update_winner/', views.update_winner, name='update_winner'),
-	path('reset_otp/', views.reset_otp, name='reset_otp'),  # 추가된 경로
+	path('reset_otp/', views.reset_otp, name='reset_otp'),
+	path('get_blockchain_scores/<str:player_name>/', views.get_blockchain_scores, name='get_blockchain_scores'),
+    path('score_check/', views.score_check_page, name='score_check_page'),
 ]

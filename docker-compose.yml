@@ -1,4 +1,4 @@
-version: '3.8'
+# version: '3.8'
 
 services:
   nginx:
@@ -27,6 +27,7 @@ services:
       - .env
     depends_on:
       - db
+      - ganache  # 블록체인 추가
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     networks:
@@ -34,11 +35,24 @@ services:
     working_dir: /app
     environment:
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      - BLOCKCHAIN_PROVIDER_URL=http://ganache:8545  # 블록체인 URL 추가
     entrypoint: >
           sh -c "python manage.py makemigrations &&
           python manage.py migrate &&
+          python deploy_contract.py &&
           python manage.py collectstatic --noinput &&
           gunicorn --bind 0.0.0.0:8000 pong_project.wsgi:application"
+  
+  ganache:
+    build:
+      context: .
+      dockerfile: Dockerfile.ganache # 위에서 만든 Dockerfile 경로
+    ports:
+      - "8545:8545"
+    networks:
+      - pong_network
+    volumes:
+    - ganache_data:/data
 
   db:
     image: postgres:13
@@ -56,6 +70,7 @@ services:
 volumes:
   postgres_data:
   static_volume:
+  ganache_data:
 
 networks:
   pong_network:

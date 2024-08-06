@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>점수 확인</h1>
+<form id="scoreCheckForm">
+    <input type="text" id="playerName" placeholder="플레이어 이름" required>
+    <button type="submit">점수 확인</button>
+</form>
+<div id="scoreResult"></div>
+
+<script>
+document.getElementById('scoreCheckForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var playerName = document.getElementById('playerName').value;
+    
+    fetch(`/get_blockchain_scores/${playerName}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.scores && data.scores.length > 0) {
+                let resultHtml = `<h2>${playerName}의 점수 기록:</h2><ul>`;
+                data.scores.forEach(([score, timestamp]) => {
+                    let date = new Date(timestamp * 1000);
+                    resultHtml += `<li>점수: ${score}, 시간: ${date.toLocaleString()}</li>`;
+                });
+                resultHtml += '</ul>';
+                document.getElementById('scoreResult').innerHTML = resultHtml;
+            } else {
+                document.getElementById('scoreResult').innerHTML = '점수 기록을 찾을 수 없습니다.';
+            }
+        })
+        .catch(error => {
+            document.getElementById('scoreResult').innerHTML = '오류가 발생했습니다: ' + error;
+        });
+});
+</script>
+{% endblock %}

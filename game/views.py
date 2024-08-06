@@ -31,6 +31,7 @@ from django.views.decorators.csrf import csrf_exempt
 import logging
 from .models import CustomUser
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from .blockchain_utils import record_score, get_scores  # 새로 추가
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -105,6 +106,9 @@ def update_winner(request):
             winner.games_played += 1
             loser.games_played += 1
 
+            # 블록체인에 승자의 점수 기록
+            record_score(winner_name, winner.games_won)
+
             winner.save()
             loser.save()
 
@@ -126,6 +130,18 @@ def update_winner(request):
             return JsonResponse({'error': str(e)}, status=500)
     else:
         return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_blockchain_scores(request, player_name):
+    try:
+        scores = get_scores(player_name)
+        return JsonResponse({'scores': scores})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+def score_check_page(request):
+    return render(request, 'game/score_check.html')
 
 # Token refresh view
 @api_view(['POST'])

@@ -1,0 +1,11 @@
+# Create a Dockerfile for Ganache
+FROM node:14
+
+# Install Ganache CLI
+RUN npm install -g ganache-cli
+
+# Expose Ganache port
+EXPOSE 8545
+
+# Run Ganache CLI
+CMD ["ganache-cli", "-h", "0.0.0.0"]
