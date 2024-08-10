@@ -14,14 +14,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     postgresql-client \
     locales \
 	curl \
-	software-properties-common \
     && rm -rf /var/lib/apt/lists/* \
     && locale-gen en_US.UTF-8
 
 COPY requirements.txt /app/
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-RUN pip install web3 py-solc-x
+RUN pip install web3
 COPY . /app/
 
 EXPOSE 8000

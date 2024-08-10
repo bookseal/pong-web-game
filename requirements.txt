@@ -11,4 +11,5 @@ requests==2.26.0
 pyotp==2.6.0
 qrcode[pil]==7.3.1
 djangorestframework-simplejwt==5.2.0
-web3==5.23.0
+web3==5.30.0
+eth-utils==1.10.0

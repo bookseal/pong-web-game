@@ -121,12 +121,230 @@ function getCookie(name) {
 //     });
 // }
 
+// function loadRootContent() {
+//     fetch('/')  // '/' 경로로 변경
+//     .then(response => response.text())
+//     .then(html => {
+//         document.getElementById('mainContent').innerHTML = html;
+//         // 필요한 경우 추가 스크립트 실행
+//         if (typeof init === 'function') {
+//             init();
+//         }
+//         if (typeof animate === 'function') {
+//             animate();
+//         }
+//     })
+//     .catch(error => {
+//         console.error('Error loading root content:', error);
+//     });
+// }
+
+// function loadRootContent() {
+//     fetch('/')
+//     .then(response => response.text())
+//     .then(html => {
+//         const parser = new DOMParser();
+//         const doc = parser.parseFromString(html, 'text/html');
+//         const mainContent = doc.getElementById('mainContent');
+//         if (mainContent) {
+//             document.getElementById('mainContent').innerHTML = mainContent.innerHTML;
+//         }
+//         // 추가: 네비게이션 바 중복 방지
+//         const existingNavbar = document.querySelector('.navbar');
+//         if (existingNavbar) {
+//             existingNavbar.remove();
+//         }
+//         const newNavbar = doc.querySelector('.navbar');
+//         if (newNavbar) {
+//             document.body.insertBefore(newNavbar, document.body.firstChild);
+//         }
+//         // 추가: URL 변경
+//         history.pushState({}, '', '/');
+//         // 나머지 코드는 동일...
+//     })
+//     .catch(error => {
+//         console.error('Error loading root content:', error);
+//     });
+// }
+
+// function loadRootContent() {
+//     fetch('/')
+//     .then(response => response.text())
+//     .then(html => {
+//         const parser = new DOMParser();
+//         const doc = parser.parseFromString(html, 'text/html');
+//         const newMainContent = doc.getElementById('mainContent');
+//         const currentMainContent = document.getElementById('mainContent');
+        
+//         if (newMainContent && currentMainContent) {
+//             // 게임 컨테이너를 제외한 나머지 내용만 업데이트
+//             const gameContainer = currentMainContent.querySelector('#gameContainer');
+//             if (gameContainer) {
+//                 newMainContent.querySelector('#gameContainer').replaceWith(gameContainer);
+//             }
+//             currentMainContent.innerHTML = newMainContent.innerHTML;
+//         }
+
+//         // URL 변경
+//         history.pushState({}, '', '/');
+
+//         // 필요한 스크립트 재실행
+//         if (typeof init === 'function') {
+//             init();
+//         }
+//         if (typeof animate === 'function') {
+//             animate();
+//         }
+//     })
+//     .catch(error => {
+//         console.error('Error loading root content:', error);
+//     });
+// }
+
+// function loadRootContent() {
+//     fetch('/')
+//     .then(response => response.text())
+//     .then(html => {
+//         const parser = new DOMParser();
+//         const doc = parser.parseFromString(html, 'text/html');
+//         const newMainContent = doc.getElementById('mainContent');
+//         const currentMainContent = document.getElementById('mainContent');
+        
+//         if (newMainContent && currentMainContent) {
+//             // 게임 컨테이너를 제외한 나머지 내용만 업데이트
+//             const gameContainer = currentMainContent.querySelector('#gameContainer');
+//             if (gameContainer) {
+//                 const newGameContainer = newMainContent.querySelector('#gameContainer');
+//                 if (newGameContainer) {
+//                     newGameContainer.replaceWith(gameContainer);
+//                 }
+//             }
+//             currentMainContent.innerHTML = newMainContent.innerHTML;
+//         }
+
+//         // URL 변경
+//         history.pushState({}, '', '/');
+
+//         // 필요한 스크립트 재실행
+//         if (typeof init === 'function') {
+//             init();
+//         }
+//         if (typeof animate === 'function') {
+//             animate();
+//         }
+//     })
+//     .catch(error => {
+//         console.error('Error loading root content:', error);
+//     });
+// }
+
+// function loadRootContent() {
+//     fetch('/')
+//     .then(response => response.text())
+//     .then(html => {
+//         const parser = new DOMParser();
+//         const doc = parser.parseFromString(html, 'text/html');
+//         const newMainContent = doc.getElementById('mainContent');
+//         const currentMainContent = document.getElementById('mainContent');
+        
+//         if (newMainContent && currentMainContent) {
+//             // 게임 컨테이너를 유지
+//             const gameContainer = currentMainContent.querySelector('#gameContainer');
+//             if (gameContainer) {
+//                 const newGameContainer = newMainContent.querySelector('#gameContainer');
+//                 if (newGameContainer) {
+//                     newGameContainer.replaceWith(gameContainer);
+//                 }
+//             }
+//             // 나머지 내용만 업데이트
+//             Array.from(currentMainContent.children).forEach(child => {
+//                 if (child.id !== 'gameContainer') {
+//                     child.remove();
+//                 }
+//             });
+//             Array.from(newMainContent.children).forEach(child => {
+//                 if (child.id !== 'gameContainer') {
+//                     currentMainContent.appendChild(child.cloneNode(true));
+//                 }
+//             });
+//         }
+
+//         // URL 변경
+//         history.pushState({}, '', '/');
+//     })
+//     .catch(error => {
+//         console.error('Error loading root content:', error);
+//     });
+// }
+
+// function loadRootContent() {
+//     fetch('/')
+//     .then(response => response.text())
+//     .then(html => {
+//         const parser = new DOMParser();
+//         const doc = parser.parseFromString(html, 'text/html');
+//         const newMainContent = doc.getElementById('mainContent');
+//         const currentMainContent = document.getElementById('mainContent');
+        
+//         if (newMainContent && currentMainContent) {
+//             // 게임 컨테이너 유지
+//             const gameContainer = currentMainContent.querySelector('#gameContainer');
+//             if (gameContainer) {
+//                 const newGameContainer = newMainContent.querySelector('#gameContainer');
+//                 if (newGameContainer) {
+//                     newGameContainer.replaceWith(gameContainer);
+//                 } else {
+//                     newMainContent.appendChild(gameContainer);
+//                 }
+//             }
+//             currentMainContent.innerHTML = newMainContent.innerHTML;
+//         }
+
+//         // URL 변경
+//         history.pushState({}, '', '/');
+
+//         // 필요한 스크립트 재실행
+//         if (typeof init === 'function') {
+//             init();
+//         }
+//         if (typeof animate === 'function') {
+//             animate();
+//         }
+//     })
+//     .catch(error => {
+//         console.error('Error loading root content:', error);
+//     });
+// }
+
 function loadRootContent() {
-    fetch('/')  // '/' 경로로 변경
+    fetch('/')
     .then(response => response.text())
     .then(html => {
-        document.getElementById('mainContent').innerHTML = html;
-        // 필요한 경우 추가 스크립트 실행
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const newMainContent = doc.getElementById('mainContent');
+        const currentMainContent = document.getElementById('mainContent');
+        
+        if (newMainContent && currentMainContent) {
+            // 게임 컨테이너 유지
+            const gameContainer = currentMainContent.querySelector('#gameContainer');
+            if (gameContainer) {
+                currentMainContent.innerHTML = newMainContent.innerHTML;
+                const newGameContainer = currentMainContent.querySelector('#gameContainer');
+                if (newGameContainer) {
+                    newGameContainer.replaceWith(gameContainer);
+                } else {
+                    currentMainContent.appendChild(gameContainer);
+                }
+            } else {
+                currentMainContent.innerHTML = newMainContent.innerHTML;
+            }
+        }
+
+        // URL 변경
+        history.pushState({}, '', '/');
+
+        // 필요한 스크립트 재실행
         if (typeof init === 'function') {
             init();
         }

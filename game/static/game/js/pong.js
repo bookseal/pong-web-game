@@ -140,7 +140,34 @@ function checkWinner() {
     }
 }
 
+// function updatePlayerStats(winner, loser) {
+//     fetch('/update_winner/', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'X-CSRFToken': getCookie('csrftoken')
+//         },
+//         body: JSON.stringify({
+//             winner: winner,
+//             loser: loser
+//         })
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.error) {
+//             console.error(`Error updating player stats: ${data.error}`);
+//         } else {
+//             displayPlayerStats(data.winner, 1);
+//             displayPlayerStats(data.loser, 2);
+//         }
+//     })
+//     .catch(error => {
+//         console.error('Error updating player stats:', error);
+//     });
+// }
+
 function updatePlayerStats(winner, loser) {
+    console.log(`Updating stats: Winner - ${winner}, Loser - ${loser}`);  // 로그 추가
     fetch('/update_winner/', {
         method: 'POST',
         headers: {
@@ -157,6 +184,7 @@ function updatePlayerStats(winner, loser) {
         if (data.error) {
             console.error(`Error updating player stats: ${data.error}`);
         } else {
+            console.log('Stats updated successfully:', data);  // 로그 추가
             displayPlayerStats(data.winner, 1);
             displayPlayerStats(data.loser, 2);
         }

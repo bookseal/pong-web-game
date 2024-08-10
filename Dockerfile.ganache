@@ -1,11 +1,3 @@
-# Create a Dockerfile for Ganache
-FROM node:14
-
-# Install Ganache CLI
-RUN npm install -g ganache-cli
-
-# Expose Ganache port
+FROM --platform=linux/amd64 trufflesuite/ganache:latest
 EXPOSE 8545
-
-# Run Ganache CLI
-CMD ["ganache-cli", "-h", "0.0.0.0"]
+CMD ["--server.host", "0.0.0.0", "--miner.defaultGasPrice", "20000000000", "--miner.blockTime", "0"]

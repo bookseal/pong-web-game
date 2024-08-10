@@ -90,7 +90,47 @@ def check_player(request, player_name):
         data = {'error': 'No user found'}
     return JsonResponse(data)
 
-# Update winner
+# # Update winner
+# @csrf_exempt
+# def update_winner(request):
+#     if request.method == 'POST':
+#         try:
+#             data = json.loads(request.body)
+#             winner_name = data.get('winner')
+#             loser_name = data.get('loser')
+
+#             winner = Player.objects.get(username=winner_name)
+#             loser = Player.objects.get(username=loser_name)
+
+#             winner.games_won += 1
+#             winner.games_played += 1
+#             loser.games_played += 1
+
+#             # 블록체인에 승자의 점수 기록
+#             record_score(winner_name, winner.games_won)
+
+#             winner.save()
+#             loser.save()
+
+#             response_data = {
+#                 'winner': {
+#                     'username': winner.username,
+#                     'games_played': winner.games_played,
+#                     'games_won': winner.games_won
+#                 },
+#                 'loser': {
+#                     'username': loser.username,
+#                     'games_played': loser.games_played,
+#                     'games_won': loser.games_won
+#                 }
+#             }
+
+#             return JsonResponse(response_data)
+#         except Exception as e:
+#             return JsonResponse({'error': str(e)}, status=500)
+#     else:
+#         return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
+
 @csrf_exempt
 def update_winner(request):
     if request.method == 'POST':
@@ -99,18 +139,18 @@ def update_winner(request):
             winner_name = data.get('winner')
             loser_name = data.get('loser')
 
-            winner = Player.objects.get(username=winner_name)
-            loser = Player.objects.get(username=loser_name)
+            winner, created = Player.objects.get_or_create(username=winner_name)
+            loser, created = Player.objects.get_or_create(username=loser_name)
 
             winner.games_won += 1
             winner.games_played += 1
             loser.games_played += 1
 
-            # 블록체인에 승자의 점수 기록
-            record_score(winner_name, winner.games_won)
-
             winner.save()
             loser.save()
+
+            # 블록체인에 승자의 점수 기록
+            record_score(winner_name, winner.games_won)
 
             response_data = {
                 'winner': {
@@ -127,21 +167,10 @@ def update_winner(request):
 
             return JsonResponse(response_data)
         except Exception as e:
+            print(f"Error in update_winner: {str(e)}")  # 에러 로깅
             return JsonResponse({'error': str(e)}, status=500)
     else:
         return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def get_blockchain_scores(request, player_name):
-    try:
-        scores = get_scores(player_name)
-        return JsonResponse({'scores': scores})
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-def score_check_page(request):
-    return render(request, 'game/score_check.html')
 
 # Token refresh view
 @api_view(['POST'])
@@ -638,14 +667,18 @@ def verify_otp(request):
 #         return JsonResponse({'scores': scores})
 #     except Exception as e:
 #         return JsonResponse({'error': str(e)}, status=500)
+@api_view(['GET'])
+@permission_classes([AllowAny])
 def get_blockchain_scores(request, player_name):
     try:
-        print(f"Attempting to get blockchain scores for player: {player_name}")
-        scores = get_scores(player_name)
-        print(f"Scores retrieved: {scores}")
-        return JsonResponse({'scores': scores})
+        logger.info(f"Attempting to get blockchain scores for player: {player_name}")
+        scores, timestamps = get_scores(player_name)
+        logger.info(f"Scores retrieved: {scores}, Timestamps: {timestamps}")
+        if not scores:
+            return JsonResponse({'message': 'No scores found for this player'}, status=404)
+        return JsonResponse({'scores': scores, 'timestamps': timestamps})
     except Exception as e:
-        print(f"Error in get_blockchain_scores view: {str(e)}")
+        logger.error(f"Error in get_blockchain_scores view: {str(e)}", exc_info=True)
         return JsonResponse({'error': str(e)}, status=500)
 
 def score_check_page(request):

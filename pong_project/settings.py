@@ -236,3 +236,5 @@ CONTRACT_ADDRESS = os.getenv('CONTRACT_ADDRESS')
 # ABI 설정 추가
 with open('contract_abi.json', 'r') as abi_file:
     CONTRACT_ABI = json.load(abi_file)
+
+print(f"Loaded ABI: {CONTRACT_ABI}")  # 디버깅을 위해 ABI 출력
