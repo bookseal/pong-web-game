@@ -101,31 +101,20 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// function loadRootContent() {
-//     fetch('/start_game/')  // 절대 경로로 변경
-//     .then(response => response.text())
-//     .then(html => {
-//         const parser = new DOMParser();
-//         const doc = parser.parseFromString(html, 'text/html');
-//         document.getElementById('mainContent').innerHTML = html;
-//         // pong.js의 init() 함수 호출
-//         if (typeof init === 'function') {
-//             init();
-//         }
-//         if (typeof animate === 'function') {
-//             animate();
-//         }
-//     })
-//     .catch(error => {
-//         console.error('Error loading root content:', error);
-//     });
-// }
-
 function loadRootContent() {
-    fetch('/')  // '/' 경로로 변경
+    fetch('/')
     .then(response => response.text())
     .then(html => {
-        document.getElementById('mainContent').innerHTML = html;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const content = doc.getElementById('mainContent');
+        if (content) {
+            document.getElementById('mainContent').innerHTML = content.innerHTML;
+        } else {
+            console.error('Main content not found in the fetched HTML');
+        }
+		// URL을 홈으로 변경
+		history.pushState(null, '', '/');
         // 필요한 경우 추가 스크립트 실행
         if (typeof init === 'function') {
             init();
