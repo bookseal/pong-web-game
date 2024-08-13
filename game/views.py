@@ -632,12 +632,6 @@ def verify_otp(request):
         logger.error(f"OTP verification error: {str(e)}")
         return Response({"error": "OTP verification failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# def get_blockchain_scores(request, player_name):
-#     try:
-#         scores = get_scores(player_name)
-#         return JsonResponse({'scores': scores})
-#     except Exception as e:
-#         return JsonResponse({'error': str(e)}, status=500)
 def get_blockchain_scores(request, player_name):
     try:
         print(f"Attempting to get blockchain scores for player: {player_name}")
