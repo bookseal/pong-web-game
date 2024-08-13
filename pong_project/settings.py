@@ -228,11 +228,17 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# 블록체인 관련 설정 추가
-BLOCKCHAIN_PROVIDER_URL = os.getenv('BLOCKCHAIN_PROVIDER_URL')
-ACCOUNT_ADDRESS = os.getenv('ACCOUNT_ADDRESS')
-CONTRACT_ADDRESS = os.getenv('CONTRACT_ADDRESS')
+# # 블록체인 관련 설정 추가
+# BLOCKCHAIN_PROVIDER_URL = os.getenv('BLOCKCHAIN_PROVIDER_URL')
+# ACCOUNT_ADDRESS = os.getenv('ACCOUNT_ADDRESS')
+# CONTRACT_ADDRESS = os.getenv('CONTRACT_ADDRESS')
 
-# ABI 설정 추가
-with open('contract_abi.json', 'r') as abi_file:
-    CONTRACT_ABI = json.load(abi_file)
+# # ABI 설정 추가
+# with open('contract_abi.json', 'r') as abi_file:
+#     CONTRACT_ABI = json.load(abi_file)
+    
+	# 블록체인 관련 설정 추가
+BLOCKCHAIN_PROVIDER_URL = 'http://ganache:8545'
+
+# CONTRACT_ADDRESS는 deploy_contract.py에서 동적으로 설정됩니다.
+CONTRACT_ADDRESS = None
