@@ -131,15 +131,6 @@ def update_winner(request):
     else:
         return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def get_blockchain_scores(request, player_name):
-    try:
-        scores = get_scores(player_name)
-        return JsonResponse({'scores': scores})
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
 def score_check_page(request):
     return render(request, 'game/score_check.html')
 
@@ -512,9 +503,6 @@ def index(request):
         logger.exception(f"Unexpected error: {str(e)}")
         return redirect('login')
     
-
-###OTP 재발급 코드 (추가 07.30)
-### 여기에 새로운 reset_otp 함수 추가 ###
 @api_view(['POST'])
 @permission_classes([AllowAny])  # AllowAny로 수정하여 모든 사용자가 접근 가능하도록 함
 def reset_otp(request):
