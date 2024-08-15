@@ -1,0 +1,145 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-08-15 18:15+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Setup"
+msgstr "설정"
+
+msgid "Verification"
+msgstr "인증"
+
+msgid "Verify"
+msgstr "인증하기"
+
+msgid "Scan this QR code with your 2FA app:"
+msgstr "2FA 앱으로 이 QR 코드를 스캔하세요:"
+
+msgid "Enter the OTP from your app:"
+msgstr "앱에서 OTP를 입력하세요:"
+
+msgid "2FA"
+msgstr "2단계 인증"
+
+msgid "setup"
+msgstr "설정"
+
+msgid "verification"
+msgstr "인증"
+
+msgid "complete!"
+msgstr "완료!"
+
+msgid "Reset OTP"
+msgstr "OTP 초기화"
+
+msgid "Done"
+msgstr "완료"
+
+msgid "Pong Web Game"
+msgstr "퐁 웹 게임"
+
+msgid "Create New Player"
+msgstr "새 플레이어 생성"
+
+msgid "Tournament"
+msgstr "토너먼트"
+
+msgid "Logout"
+msgstr "로그아웃"
+
+msgid "Username"
+msgstr "사용자 이름"
+
+msgid "Games Played"
+msgstr "플레이한 게임"
+
+msgid "Games Won"
+msgstr "이긴 게임"
+
+msgid "Create"
+msgstr "생성"
+
+msgid "Start Tournament"
+msgstr "토너먼트 시작"
+
+msgid "Player 1"
+msgstr "플레이어 1"
+
+msgid "Player 2"
+msgstr "플레이어 2"
+
+msgid "Player 3"
+msgstr "플레이어 3"
+
+msgid "Player 4"
+msgstr "플레이어 4"
+
+msgid "Confirm"
+msgstr "확인"
+
+msgid "Close"
+msgstr "닫기"
+
+msgid "Pong Game"
+msgstr "퐁 게임"
+
+msgid "Enter name"
+msgstr "이름 입력"
+
+msgid "Start Game"
+msgstr "게임 시작"
+
+msgid "Start Game for Beginner"
+msgstr "초보자용 게임 시작"
+
+msgid "Reset Session"
+msgstr "세션 초기화"
+
+msgid "Check Blockchain Scores"
+msgstr "블록체인 점수 확인"
+
+msgid "Enter Player 1 Name"
+msgstr "플레이어 1 이름 입력"
+
+msgid "Enter Player 2 Name"
+msgstr "플레이어 2 이름 입력"
+
+msgid "Score Check"
+msgstr "점수 확인"
+
+msgid "Player Name"
+msgstr "플레이어 이름"
+
+msgid "Check Score"
+msgstr "점수 확인"
+
+msgid "Login"
+msgstr "로그인"
+
+msgid "Login with 42Auth"
+msgstr "42Auth로 로그인"
+
+msgid "English"
+msgstr "영어"
+
+msgid "Korean"
+msgstr "한국어"
+
+msgid "French"
+msgstr "프랑스어"

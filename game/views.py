@@ -32,6 +32,10 @@ import logging
 from .models import CustomUser
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .blockchain_utils import record_score, get_scores
+from django.utils.translation import gettext as _
+from django.shortcuts import redirect
+from django.utils import translation
+import datetime
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -632,3 +636,55 @@ def get_blockchain_scores(request, player_name):
 
 def score_check_page(request):
     return render(request, 'game/score_check.html')
+
+# def change_language(request):
+#     lang = request.GET.get('lang', settings.LANGUAGE_CODE)
+#     available_languages = [lang_code for lang_code, _ in settings.LANGUAGES]
+
+#     if lang in available_languages:
+#         translation.activate(lang)
+#         request.session[settings.LANGUAGE_COOKIE_NAME] = lang
+#     else:
+#         lang = settings.LANGUAGE_CODE
+#         translation.activate(lang)
+#         request.session[settings.LANGUAGE_COOKIE_NAME] = lang
+
+#     response = redirect(request.META.get('HTTP_REFERER', '/'))
+#     response.set_cookie(settings.LANGUAGE_COOKIE_NAME, lang)
+#     return response
+
+def change_language(request):
+    lang = request.GET.get('lang')
+    if not lang:
+        # GET 파라미터에 lang이 없으면 쿠키에서 확인
+        lang = request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME)
+    if not lang:
+        # 쿠키에도 없으면 기본 언어 사용
+        lang = settings.LANGUAGE_CODE
+
+    available_languages = [lang_code for lang_code, _ in settings.LANGUAGES]
+
+    if lang in available_languages:
+        translation.activate(lang)
+    else:
+        lang = settings.LANGUAGE_CODE
+        translation.activate(lang)
+
+    response = redirect(request.META.get('HTTP_REFERER', '/'))
+    
+    # 쿠키 설정 (1년 동안 유효)
+    max_age = 365 * 24 * 60 * 60  # 1년
+    expires = datetime.datetime.strftime(datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age), "%a, %d-%b-%Y %H:%M:%S GMT")
+    response.set_cookie(
+        settings.LANGUAGE_COOKIE_NAME,
+        lang,
+        max_age=max_age,
+        expires=expires,
+        domain=settings.SESSION_COOKIE_DOMAIN,
+        secure=settings.SESSION_COOKIE_SECURE or None
+    )
+
+    # 세션에도 언어 설정 저장
+    request.session[settings.LANGUAGE_COOKIE_NAME] = lang
+
+    return response

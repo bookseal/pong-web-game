@@ -1,15 +1,20 @@
+{% load i18n %}
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
 	<!-- <a href="{% url 'index' %}" id="homeLink" class="navbar-brand">Pong Web Game</a> -->
-	<a id="homeLink" class="navbar-brand">Pong Web Game</a>
+	<!-- <a id="homeLink" class="navbar-brand">Pong Web Game</a> -->
+	<a id="homeLink" class="navbar-brand">{% trans "Pong Web Game" %}</a>
     <div class="collapse navbar-collapse justify-content-center">
       <!-- Add any center-aligned items here -->
     </div>
     <div class="collapse navbar-collapse justify-content-end">
-      <button class="btn btn-outline-primary me-2" id="createPlayerButton" data-bs-toggle="modal" data-bs-target="#createPlayerModal">Create New Player</button>
-      <button class="btn btn-outline-success me-2" id="tournamentButton" data-bs-toggle="modal" data-bs-target="#tournamentModal">Tournament</button>
-      <button class="btn btn-outline-danger" id="logoutButton">Logout</button>
+      <!-- <button class="btn btn-outline-primary me-2" id="createPlayerButton" data-bs-toggle="modal" data-bs-target="#createPlayerModal">Create New Player</button> -->
+	  <button class="btn btn-outline-primary me-2" id="createPlayerButton" data-bs-toggle="modal" data-bs-target="#createPlayerModal">{% trans "Create New Player" %}</button>
+      <!-- <button class="btn btn-outline-success me-2" id="tournamentButton" data-bs-toggle="modal" data-bs-target="#tournamentModal">Tournament</button> -->
+	  <button class="btn btn-outline-success me-2" id="tournamentButton" data-bs-toggle="modal" data-bs-target="#tournamentModal">{% trans "Tournament" %}</button>
+      <!-- <button class="btn btn-outline-danger" id="logoutButton">Logout</button> -->
+	  <button class="btn btn-outline-danger" id="logoutButton">{% trans "Logout" %}</button>
     </div>
   </div>
 </nav>
@@ -19,24 +24,29 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="createPlayerModalLabel">Create New Player</h5>
+                <!-- <h5 class="modal-title" id="createPlayerModalLabel">Create New Player</h5> -->
+				<h5 class="modal-title" id="createPlayerModalLabel">{% trans "Create New Player" %}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="createPlayerForm">
                     <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
+                        <!-- <label for="username" class="form-label">Username</label> -->
+						<label for="username" class="form-label">{% trans "Username" %}</label>
                         <input type="text" class="form-control" id="username" required>
                     </div>
                     <div class="mb-3">
-                        <label for="gamesPlayed" class="form-label">Games Played</label>
+                        <!-- <label for="gamesPlayed" class="form-label">Games Played</label> -->
+						<label for="gamesPlayed" class="form-label">{% trans "Games Played" %}</label>
                         <input type="number" class="form-control" id="gamesPlayed" value="0">
                     </div>
                     <div class="mb-3">
-                        <label for="gamesWon" class="form-label">Games Won</label>
+                        <!-- <label for="gamesWon" class="form-label">Games Won</label> -->
+						<label for="gamesWon" class="form-label">{% trans "Games Won" %}</label>
                         <input type="number" class="form-control" id="gamesWon" value="0">
                     </div>
-                    <button type="submit" class="btn btn-primary">Create</button>
+                    <!-- <button type="submit" class="btn btn-primary">Create</button> -->
+					<button type="submit" class="btn btn-primary">{% trans "Create" %}</button>
                 </form>
             </div>
         </div>
@@ -48,40 +58,49 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="tournamentModalLabel">Start Tournament</h5>
+        <!-- <h5 class="modal-title" id="tournamentModalLabel">Start Tournament</h5> -->
+		<h5 class="modal-title" id="tournamentModalLabel">{% trans "Start Tournament" %}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label for="player1Name" class="form-label">Player 1</label>
+            <!-- <label for="player1Name" class="form-label">Player 1</label> -->
+			<label for="player1Name" class="form-label">{% trans "Player 1" %}</label>
             <div class="input-group">
               <input type="text" class="form-control" id="tournamentPlayer1Name" required>
-              <button class="btn btn-outline-secondary" type="button" onclick="checkTournamentPlayer(1)">Confirm</button>
+              <!-- <button class="btn btn-outline-secondary" type="button" onclick="checkTournamentPlayer(1)">Confirm</button> -->
+              <button class="btn btn-outline-secondary" type="button" onclick="checkTournamentPlayer(1)">{% trans "Confirm" %}</button>
             </div>
             <div id="tournamentPlayer1Stats"></div>
           </div>
           <div class="col-md-6 mb-3">
-            <label for="player2Name" class="form-label">Player 2</label>
+            <!-- <label for="player2Name" class="form-label">Player 2</label> -->
+			<label for="player2Name" class="form-label">{% trans "Player 2" %}</label>
             <div class="input-group">
               <input type="text" class="form-control" id="tournamentPlayer2Name" required>
-              <button class="btn btn-outline-secondary" type="button" onclick="checkTournamentPlayer(2)">Confirm</button>
+              <!-- <button class="btn btn-outline-secondary" type="button" onclick="checkTournamentPlayer(2)">Confirm</button> -->
+              <button class="btn btn-outline-secondary" type="button" onclick="checkTournamentPlayer(2)">{% trans "Confirm" %}</button>
             </div>
             <div id="tournamentPlayer2Stats"></div>
           </div>
           <div class="col-md-6 mb-3">
-            <label for="player3Name" class="form-label">Player 3</label>
+            <!-- <label for="player3Name" class="form-label">Player 3</label> -->
+			<label for="player3Name" class="form-label">{% trans "Player 3" %}</label>
             <div class="input-group">
               <input type="text" class="form-control" id="tournamentPlayer3Name" required>
-              <button class="btn btn-outline-secondary" type="button" onclick="checkTournamentPlayer(3)">Confirm</button>
+              <!-- <button class="btn btn-outline-secondary" type="button" onclick="checkTournamentPlayer(3)">Confirm</button> -->
+              <button class="btn btn-outline-secondary" type="button" onclick="checkTournamentPlayer(3)">{% trans "Confirm" %}</button>
             </div>
             <div id="tournamentPlayer3Stats"></div>
           </div>
           <div class="col-md-6 mb-3">
-            <label for="player4Name" class="form-label">Player 4</label>
+            <!-- <label for="player4Name" class="form-label">Player 4</label> -->
+			<label for="player4Name" class="form-label">{% trans "Player 4" %}</label>
             <div class="input-group">
               <input type="text" class="form-control" id="tournamentPlayer4Name" required>
-              <button class="btn btn-outline-secondary" type="button" onclick="checkTournamentPlayer(4)">Confirm</button>
+              <!-- <button class="btn btn-outline-secondary" type="button" onclick="checkTournamentPlayer(4)">Confirm</button> -->
+			  <button class="btn btn-outline-secondary" type="button" onclick="checkTournamentPlayer(4)">{% trans "Confirm" %}</button>
             </div>
             <div id="tournamentPlayer4Stats"></div>
           </div>
@@ -89,8 +108,10 @@
         <div id="tournamentError" class="text-danger"></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="startTournamentButton">Start Tournament</button>
+        <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+		<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
+        <!-- <button type="button" class="btn btn-primary" id="startTournamentButton">Start Tournament</button> -->
+		<button type="button" class="btn btn-primary" id="startTournamentButton">{% trans "Start Tournament" %}</button>
       </div>
     </div>
   </div>

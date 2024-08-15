@@ -1,9 +1,13 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% block content %}
-<h1>Score Check</h1>
+<!-- <h1>Score Check</h1> -->
+<h1>{% trans "Score Check" %}</h1>
 
-<input type="text" id="playerName" placeholder="Player Name">
-<button onclick="checkScore()">Check Score</button>
+<!-- <input type="text" id="playerName" placeholder="Player Name"> -->
+<input type="text" id="playerName" placeholder="{% trans 'Player Name' %}">
+<!-- <button onclick="checkScore()">Check Score</button> -->
+<button onclick="checkScore()">{% trans "Check Score" %}</button>
 <div id="scoreResult"></div>
 
 <script>

@@ -1,0 +1,145 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-08-15 18:15+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Setup"
+msgstr "Configuration"
+
+msgid "Verification"
+msgstr "Vérification"
+
+msgid "Verify"
+msgstr "Vérifier"
+
+msgid "Scan this QR code with your 2FA app:"
+msgstr "Scannez ce code QR avec votre application 2FA :"
+
+msgid "Enter the OTP from your app:"
+msgstr "Entrez le OTP de votre application :"
+
+msgid "2FA"
+msgstr "2FA"
+
+msgid "setup"
+msgstr "configuration"
+
+msgid "verification"
+msgstr "vérification"
+
+msgid "complete!"
+msgstr "terminé !"
+
+msgid "Reset OTP"
+msgstr "Réinitialiser OTP"
+
+msgid "Done"
+msgstr "Terminé"
+
+msgid "Pong Web Game"
+msgstr "Jeu Web Pong"
+
+msgid "Create New Player"
+msgstr "Créer un nouveau joueur"
+
+msgid "Tournament"
+msgstr "Tournoi"
+
+msgid "Logout"
+msgstr "Déconnexion"
+
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+msgid "Games Played"
+msgstr "Parties jouées"
+
+msgid "Games Won"
+msgstr "Parties gagnées"
+
+msgid "Create"
+msgstr "Créer"
+
+msgid "Start Tournament"
+msgstr "Démarrer le tournoi"
+
+msgid "Player 1"
+msgstr "Joueur 1"
+
+msgid "Player 2"
+msgstr "Joueur 2"
+
+msgid "Player 3"
+msgstr "Joueur 3"
+
+msgid "Player 4"
+msgstr "Joueur 4"
+
+msgid "Confirm"
+msgstr "Confirmer"
+
+msgid "Close"
+msgstr "Fermer"
+
+msgid "Pong Game"
+msgstr "Jeu de Pong"
+
+msgid "Enter name"
+msgstr "Entrez le nom"
+
+msgid "Start Game"
+msgstr "Commencer le jeu"
+
+msgid "Start Game for Beginner"
+msgstr "Commencer le jeu pour débutant"
+
+msgid "Reset Session"
+msgstr "Réinitialiser la session"
+
+msgid "Check Blockchain Scores"
+msgstr "Vérifier les scores blockchain"
+
+msgid "Enter Player 1 Name"
+msgstr "Entrez le nom du joueur 1"
+
+msgid "Enter Player 2 Name"
+msgstr "Entrez le nom du joueur 2"
+
+msgid "Score Check"
+msgstr "Vérification du score"
+
+msgid "Player Name"
+msgstr "Nom du joueur"
+
+msgid "Check Score"
+msgstr "Vérifier le score"
+
+msgid "Login"
+msgstr "Connexion"
+
+msgid "Login with 42Auth"
+msgstr "Connexion avec 42Auth"
+
+msgid "English"
+msgstr "Anglais"
+
+msgid "Korean"
+msgstr "Coréen"
+
+msgid "French"
+msgstr "Français"

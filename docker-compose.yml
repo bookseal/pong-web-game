@@ -40,6 +40,7 @@ services:
       sh -c "
       python manage.py makemigrations &&
       python manage.py migrate &&
+      python manage.py compilemessages > /dev/null 2>&1 &&
       python manage.py collectstatic --noinput &&
       python deploy_contract.py &&
       gunicorn --bind 0.0.0.0:8000 pong_project.wsgi:application
