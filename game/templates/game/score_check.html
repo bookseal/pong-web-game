@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>점수 확인</h1>
+<h1>Score Check</h1>
 
-<input type="text" id="playerName" placeholder="플레이어 이름">
-<button onclick="checkScore()">점수 확인</button>
+<input type="text" id="playerName" placeholder="Player Name">
+<button onclick="checkScore()">Check Score</button>
 <div id="scoreResult"></div>
 
 <script>
@@ -13,19 +13,19 @@ function checkScore() {
         .then(response => response.json())
         .then(data => {
             if (data.error) {
-                document.getElementById('scoreResult').innerText = `오류: ${data.error}`;
+				document.getElementById('scoreResult').innerText = `Error: ${data.error}`;
             } else {
                 const scores = data.scores[0];  // 점수 배열
                 const timestamps = data.scores[1];  // 타임스탬프 배열
-                let result = '점수 기록:\n';
+				let result = 'Score Record:\n';
                 for (let i = 0; i < scores.length; i++) {
-                    result += `점수: ${scores[i]}, 시간: ${new Date(timestamps[i] * 1000).toLocaleString()}\n`;
+					result += `Score: ${scores[i]}, Time: ${new Date(timestamps[i] * 1000).toLocaleString()}\n`;
                 }
                 document.getElementById('scoreResult').innerText = result;
             }
         })
         .catch(error => {
-            document.getElementById('scoreResult').innerText = `오류: ${error}`;
+			document.getElementById('scoreResult').innerText = `Error: ${error}`;
         });
 }
 </script>
