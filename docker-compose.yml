@@ -1,4 +1,4 @@
-version: '3.8'
+# version: '3.8'
 
 services:
   nginx:
@@ -20,6 +20,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    platform: linux/arm64
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
@@ -27,6 +28,7 @@ services:
       - .env
     depends_on:
       - db
+      - ganache
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     networks:
@@ -35,13 +37,32 @@ services:
     environment:
       - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
     entrypoint: >
-          sh -c "python manage.py makemigrations &&
-          python manage.py migrate &&
-          python manage.py collectstatic --noinput &&
-          gunicorn --bind 0.0.0.0:8000 pong_project.wsgi:application"
+      sh -c "
+      python manage.py makemigrations &&
+      python manage.py migrate &&
+      python manage.py collectstatic --noinput &&
+      python deploy_contract.py &&
+      gunicorn --bind 0.0.0.0:8000 pong_project.wsgi:application
+      "
+
+  ganache:
+    image: trufflesuite/ganache:latest
+    platform: linux/amd64
+    ports:
+      - "8545:8545"
+    networks:
+      - pong_network
+    command: >
+      --wallet.mnemonic "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+      --chain.chainId 1337
+      --wallet.totalAccounts 10
+      --server.host 0.0.0.0
+      --server.port 8545
+      --chain.networkId 5777
 
   db:
     image: postgres:13
+    platform: linux/arm64
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:

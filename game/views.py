@@ -31,6 +31,7 @@ from django.views.decorators.csrf import csrf_exempt
 import logging
 from .models import CustomUser
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from .blockchain_utils import record_score, get_scores
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -105,6 +106,9 @@ def update_winner(request):
             winner.games_played += 1
             loser.games_played += 1
 
+            # 블록체인에 승자의 점수 기록
+            record_score(winner_name, winner.games_won)
+
             winner.save()
             loser.save()
 
@@ -126,6 +130,9 @@ def update_winner(request):
             return JsonResponse({'error': str(e)}, status=500)
     else:
         return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
+
+def score_check_page(request):
+    return render(request, 'game/score_check.html')
 
 # Token refresh view
 @api_view(['POST'])
@@ -496,9 +503,6 @@ def index(request):
         logger.exception(f"Unexpected error: {str(e)}")
         return redirect('login')
     
-
-###OTP 재발급 코드 (추가 07.30)
-### 여기에 새로운 reset_otp 함수 추가 ###
 @api_view(['POST'])
 @permission_classes([AllowAny])  # AllowAny로 수정하여 모든 사용자가 접근 가능하도록 함
 def reset_otp(request):
@@ -615,3 +619,16 @@ def verify_otp(request):
     except Exception as e:
         logger.error(f"OTP verification error: {str(e)}")
         return Response({"error": "OTP verification failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+def get_blockchain_scores(request, player_name):
+    try:
+        print(f"Attempting to get blockchain scores for player: {player_name}")
+        scores = get_scores(player_name)
+        print(f"Scores retrieved: {scores}")
+        return JsonResponse({'scores': scores})
+    except Exception as e:
+        print(f"Error in get_blockchain_scores view: {str(e)}")
+        return JsonResponse({'error': str(e)}, status=500)
+
+def score_check_page(request):
+    return render(request, 'game/score_check.html')

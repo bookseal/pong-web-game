@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+import json
 
 
 # BASE_DIR 설정
@@ -226,3 +227,8 @@ SECURE_HSTS_PRELOAD = True
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+BLOCKCHAIN_PROVIDER_URL = 'http://ganache:8545'
+
+# CONTRACT_ADDRESS는 deploy_contract.py에서 동적으로 설정됩니다.
+CONTRACT_ADDRESS = None

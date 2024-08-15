@@ -102,13 +102,20 @@ function getCookie(name) {
 }
 
 function loadRootContent() {
-    fetch('start_game/')
+    fetch('/')
     .then(response => response.text())
     .then(html => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
-        document.getElementById('mainContent').innerHTML = html;
-        // pong.js의 init() 함수 호출
+        const content = doc.getElementById('mainContent');
+        if (content) {
+            document.getElementById('mainContent').innerHTML = content.innerHTML;
+        } else {
+            console.error('Main content not found in the fetched HTML');
+        }
+		// URL을 홈으로 변경
+		history.pushState(null, '', '/');
+        // 필요한 경우 추가 스크립트 실행
         if (typeof init === 'function') {
             init();
         }
