@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-15 18:15+0000\n"
+"POT-Creation-Date: 2024-08-16 12:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -81,6 +81,9 @@ msgstr "Démarrer le tournoi"
 msgid "Player 1"
 msgstr "Joueur 1"
 
+msgid "Confirm"
+msgstr "Confirmer"
+
 msgid "Player 2"
 msgstr "Joueur 2"
 
@@ -89,9 +92,6 @@ msgstr "Joueur 3"
 
 msgid "Player 4"
 msgstr "Joueur 4"
-
-msgid "Confirm"
-msgstr "Confirmer"
 
 msgid "Close"
 msgstr "Fermer"
@@ -134,6 +134,60 @@ msgstr "Connexion"
 
 msgid "Login with 42Auth"
 msgstr "Connexion avec 42Auth"
+
+msgid "Username is required"
+msgstr "Le nom d'utilisateur est requis"
+
+msgid "Player with this username already exists"
+msgstr "Un joueur avec ce nom d'utilisateur existe déjà"
+
+msgid "Player created successfully"
+msgstr "Joueur créé avec succès"
+
+msgid "Invalid JSON data"
+msgstr "Données JSON invalides"
+
+msgid "Invalid HTTP method"
+msgstr "Méthode HTTP invalide"
+
+msgid "Username: {}"
+msgstr "Nom d'utilisateur : {}"
+
+msgid "Games Played: {}"
+msgstr "Parties jouées : {}"
+
+msgid "Games Won: {}"
+msgstr "Parties gagnées : {}"
+
+msgid "No user found"
+msgstr "Aucun utilisateur trouvé"
+
+msgid "User not found"
+msgstr "Utilisateur non trouvé"
+
+msgid "OTP secret not set"
+msgstr "Le secret OTP n'est pas défini"
+
+msgid "OTP verified successfully"
+msgstr "OTP vérifié avec succès"
+
+msgid "Invalid OTP"
+msgstr "OTP invalide"
+
+msgid "OTP reset failed"
+msgstr "La réinitialisation de l'OTP a échoué"
+
+msgid "OTP verification failed"
+msgstr "La vérification de l'OTP a échoué"
+
+msgid "Score: {}"
+msgstr "Score : {}"
+
+msgid "Time: {}"
+msgstr "Temps : {}"
+
+msgid "Score Record:"
+msgstr "Enregistrement du score :"
 
 msgid "English"
 msgstr "Anglais"

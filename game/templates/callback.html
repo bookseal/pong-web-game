@@ -82,7 +82,8 @@
             const otpCode = document.getElementById('otp').value;
             const username = document.getElementById('username').value;
 
-            fetch('/verify_otp/', {
+            // fetch('/verify_otp/', {
+			fetch('/verify_2fa/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

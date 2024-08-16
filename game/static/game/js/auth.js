@@ -56,11 +56,13 @@ async function apiRequest(url, method = 'GET', body = null) {
 
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(data.detail || 'API request failed');
+            // throw new Error(data.detail || 'API request failed');
+			throw new Error(data.detail || gettext('API request failed'));  // 수정: 번역 함수 사용
         }
         return data;
     } catch (error) {
-        console.error('API request failed:', error);
+        // console.error('API request failed:', error);
+		console.error(gettext('API request failed:'), error);  // 수정: 번역 함수 사용
         throw error;
     }
 }
@@ -94,7 +96,8 @@ async function refreshAccessToken() {
             return null;
         }
     } catch (error) {
-        console.error('Token refresh failed:', error);
+        // console.error('Token refresh failed:', error);
+		console.error(gettext('Token refresh failed:'), error);  // 수정: 번역 함수 사용
         return null;
     }
 }

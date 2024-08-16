@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-15 18:15+0000\n"
+"POT-Creation-Date: 2024-08-16 12:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -81,6 +81,9 @@ msgstr "Start Tournament"
 msgid "Player 1"
 msgstr "Player 1"
 
+msgid "Confirm"
+msgstr "Confirm"
+
 msgid "Player 2"
 msgstr "Player 2"
 
@@ -89,9 +92,6 @@ msgstr "Player 3"
 
 msgid "Player 4"
 msgstr "Player 4"
-
-msgid "Confirm"
-msgstr "Confirm"
 
 msgid "Close"
 msgstr "Close"
@@ -134,6 +134,60 @@ msgstr "Login"
 
 msgid "Login with 42Auth"
 msgstr "Login with 42Auth"
+
+msgid "Username is required"
+msgstr "Username is required"
+
+msgid "Player with this username already exists"
+msgstr "Player with this username already exists"
+
+msgid "Player created successfully"
+msgstr "Player created successfully"
+
+msgid "Invalid JSON data"
+msgstr "Invalid JSON data"
+
+msgid "Invalid HTTP method"
+msgstr "Invalid HTTP method"
+
+msgid "Username: {}"
+msgstr "Username: {}"
+
+msgid "Games Played: {}"
+msgstr "Games Played: {}"
+
+msgid "Games Won: {}"
+msgstr "Games Won: {}"
+
+msgid "No user found"
+msgstr "No user found"
+
+msgid "User not found"
+msgstr "User not found"
+
+msgid "OTP secret not set"
+msgstr "OTP secret not set"
+
+msgid "OTP verified successfully"
+msgstr "OTP verified successfully"
+
+msgid "Invalid OTP"
+msgstr "Invalid OTP"
+
+msgid "OTP reset failed"
+msgstr "OTP reset failed"
+
+msgid "OTP verification failed"
+msgstr "OTP verification failed"
+
+msgid "Score: {}"
+msgstr "Score: {}"
+
+msgid "Time: {}"
+msgstr "Time: {}"
+
+msgid "Score Record:"
+msgstr "Score Record:"
 
 msgid "English"
 msgstr "English"

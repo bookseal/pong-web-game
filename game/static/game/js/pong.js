@@ -50,18 +50,23 @@ function checkPlayer(playerNumber) {
             console.log("Data received:", data); // 추가
             const statsElement = document.getElementById(`player${playerNumber}Stats`);
             if (data.error) {
-                statsElement.innerText = `Error: No user found`;
+                // statsElement.innerText = `Error: No user found`;
+				statsElement.innerText = gettext('Error: No user found');  // 수정: 번역 함수 사용
                 statsElement.classList.add("error-message");
             } else {
-                statsElement.innerText =
-                    `Username: ${data.username}\nGames Played: ${data.games_played}\nGames Won: ${data.games_won}`;
+                // statsElement.innerText =
+                //     // `Username: ${data.username}\nGames Played: ${data.games_played}\nGames Won: ${data.games_won}`;
+				// 	`${gettext('Username')}: ${data.username}\n${data.games_played}\n${data.games_won}`;  // 수정: 번역 함수 사용
+				// statsElement.innerText = `${gettext('Username')}: ${player.username}\n${gettext('Games Played')}: ${player.games_played}\n${gettext('Games Won')}: ${player.games_won}`;
+				statsElement.innerText = `${gettext('Username')}:! ${data.username}\n${gettext('Games Played')}: ${data.games_played}\n${gettext('Games Won')}: ${data.games_won}`;
                 statsElement.classList.remove("error-message");
             }
         })
         .catch(error => {
             console.log("Error:", error); // 추가
             const statsElement = document.getElementById(`player${playerNumber}Stats`);
-            statsElement.innerText = `Error: ${error}`;
+            // statsElement.innerText = `Error: ${error}`;
+			statsElement.innerText = gettext('Error: ') + error;  // 수정: 번역 함수 사용
             statsElement.classList.add("error-message");
         });
 }
@@ -155,21 +160,25 @@ function updatePlayerStats(winner, loser) {
     .then(response => response.json())
     .then(data => {
         if (data.error) {
-            console.error(`Error updating player stats: ${data.error}`);
+            // console.error(`Error updating player stats: ${data.error}`);
+			console.error(gettext('Error updating player stats: ') + data.error);  // 수정: 번역 함수 사용
         } else {
             displayPlayerStats(data.winner, 1);
             displayPlayerStats(data.loser, 2);
         }
     })
     .catch(error => {
-        console.error('Error updating player stats:', error);
+        // console.error('Error updating player stats:', error);
+		console.error(gettext('Error updating player stats: ') + error);  // 수정: 번역 함수 사용
     });
 }
 
 function displayPlayerStats(player, playerNumber) {
     const statsElement = document.getElementById(`player${playerNumber}Stats`);
-    statsElement.innerText =
-        `Username: ${player.username}\nGames Played: ${player.games_played}\nGames Won: ${player.games_won}`;
+    // statsElement.innerText =
+        // `Username: ${player.username}\nGames Played: ${player.games_played}\nGames Won: ${player.games_won}`;
+		// `${gettext('Username')}: ${player.username}\n${player.games_played}\n${player.games_won}`;  // 수정: 번역 함수 사용
+	statsElement.innerText = `${gettext('Username')}: ${player.username}\n${gettext('Games Played')}: ${player.games_played}\n${gettext('Games Won')}: ${player.games_won}`;
 }
 
 
@@ -185,9 +194,16 @@ function displayWinner(winner) {
     winnerText.style.textAlign = 'center';
 
     if (isTournament) {
-        winnerText.innerHTML = `${winner} wins!`;
+        // winnerText.innerHTML = `${winner} wins!`;
+		// winnerText.innerHTML = interpolate(gettext('%s wins!'), [winner]);  // 수정: 번역 함수 사용
+		// winnerText.innerHTML = gettext('%s wins!'), [winner];  // 수정: 번역 함수 사용
+		winnerText.innerHTML = gettext('%s wins!').replace('%s', winner);
+
     } else {
-        winnerText.innerHTML = `${winner} wins!<br><br>Click to play again`;
+        // winnerText.innerHTML = `${winner} wins!<br><br>Click to play again`;
+		// winnerText.innerHTML = interpolate(gettext('%s wins!<br><br>Click to play again'), [winner]);  // 수정: 번역 함수 사용
+		// winnerText.innerHTML = gettext('%s wins!<br><br>Click to play again'), [winner];  // 수정: 번역 함수 사용
+		winnerText.innerHTML = gettext('%s wins!<br><br>Click to play again').replace('%s', winner);
         document.getElementById('gameContainer').onclick = restartGame;
     }
 
@@ -237,24 +253,30 @@ function startGame(tournamentPlayer1 = null, tournamentPlayer2 = null) {
     console.log("Player 2 name:", player2Name);
 
     if (player1Name === '' || player2Name === '') {
-        document.getElementById('nameError').textContent = 'Both player names are required.';
+        // document.getElementById('nameError').textContent = 'Both player names are required.';
+		document.getElementById('nameError').textContent = gettext('Both player names are required.');  // 수정: 번역 함수 사용
         return;
     }
 
     if (player1Name === player2Name) {
-        document.getElementById('nameError').textContent = 'Player names must be different.';
+        // document.getElementById('nameError').textContent = 'Player names must be different.';
+		document.getElementById('nameError').textContent = gettext('Player names must be different.');  // 수정: 번역 함수 사용
         return;
     }
 
     checkPlayerExistence(player1Name, function(player1Exists) {
         if (!player1Exists) {
-            document.getElementById('nameError').textContent = `Player 1 (${player1Name}) does not exist.`;
+            // document.getElementById('nameError').textContent = `Player 1 (${player1Name}) does not exist.`;
+			// document.getElementById('nameError').textContent = interpolate(gettext('Player 1 (%s) does not exist.'), [player1Name]);  // 수정: 번역 함수 사용
+			document.getElementById('nameError').textContent = gettext('Player 1 (%s) does not exist.'), [player1Name];  // 수정: 번역 함수 사용
             return;
         }
 
         checkPlayerExistence(player2Name, function(player2Exists) {
             if (!player2Exists) {
-                document.getElementById('nameError').textContent = `Player 2 (${player2Name}) does not exist.`;
+                // document.getElementById('nameError').textContent = `Player 2 (${player2Name}) does not exist.`;
+				// document.getElementById('nameError').textContent = interpolate(gettext('Player 2 (%s) does not exist.'), [player2Name]);  // 수정: 번역 함수 사용
+				document.getElementById('nameError').textContent = gettext('Player 2 (%s) does not exist.'), [player2Name];  // 수정: 번역 함수 사용
                 return;
             }
 
@@ -264,7 +286,9 @@ function startGame(tournamentPlayer1 = null, tournamentPlayer2 = null) {
             document.getElementById('startBeginnerButton').style.display = 'none';
             resetBall();
 
-            console.log(`Game started with ${player1Name} (W/S keys) and ${player2Name} (Arrow keys)`);
+            // console.log(`Game started with ${player1Name} (W/S keys) and ${player2Name} (Arrow keys)`);
+			console.log(interpolate(gettext('Game started with %s (W/S keys) and %s (Arrow keys)'), [player1Name, player2Name]));  // 수정: 번역 함수 사용
+			console.log(gettext('Game started with %s (W/S keys) and %s (Arrow keys)'), [player1Name, player2Name]);  // 수정: 번역 함수 사용
         });
     });
 }

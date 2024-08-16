@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-15 18:15+0000\n"
+"POT-Creation-Date: 2024-08-16 12:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -81,6 +81,9 @@ msgstr "토너먼트 시작"
 msgid "Player 1"
 msgstr "플레이어 1"
 
+msgid "Confirm"
+msgstr "확인"
+
 msgid "Player 2"
 msgstr "플레이어 2"
 
@@ -89,9 +92,6 @@ msgstr "플레이어 3"
 
 msgid "Player 4"
 msgstr "플레이어 4"
-
-msgid "Confirm"
-msgstr "확인"
 
 msgid "Close"
 msgstr "닫기"
@@ -134,6 +134,60 @@ msgstr "로그인"
 
 msgid "Login with 42Auth"
 msgstr "42Auth로 로그인"
+
+msgid "Username is required"
+msgstr "사용자 이름이 필요합니다"
+
+msgid "Player with this username already exists"
+msgstr "이 사용자 이름을 가진 플레이어가 이미 존재합니다"
+
+msgid "Player created successfully"
+msgstr "플레이어가 성공적으로 생성되었습니다"
+
+msgid "Invalid JSON data"
+msgstr "유효하지 않은 JSON 데이터"
+
+msgid "Invalid HTTP method"
+msgstr "유효하지 않은 HTTP 메소드"
+
+msgid "Username: {}"
+msgstr "사용자 이름: {}"
+
+msgid "Games Played: {}"
+msgstr "플레이한 게임: {}"
+
+msgid "Games Won: {}"
+msgstr "이긴 게임: {}"
+
+msgid "No user found"
+msgstr "사용자를 찾을 수 없습니다"
+
+msgid "User not found"
+msgstr "사용자를 찾을 수 없습니다"
+
+msgid "OTP secret not set"
+msgstr "OTP 비밀키가 설정되지 않았습니다"
+
+msgid "OTP verified successfully"
+msgstr "OTP가 성공적으로 인증되었습니다"
+
+msgid "Invalid OTP"
+msgstr "유효하지 않은 OTP"
+
+msgid "OTP reset failed"
+msgstr "OTP 초기화 실패"
+
+msgid "OTP verification failed"
+msgstr "OTP 인증 실패"
+
+msgid "Score: {}"
+msgstr "점수: {}"
+
+msgid "Time: {}"
+msgstr "시간: {}"
+
+msgid "Score Record:"
+msgstr "점수 기록:"
 
 msgid "English"
 msgstr "영어"
