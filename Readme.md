@@ -35,6 +35,7 @@
 ```bash
 docker compose build --no-cache
 docker compose up
+```
 
 
 ## 🛠️ 기술 스택
