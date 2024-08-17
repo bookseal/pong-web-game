@@ -48,7 +48,7 @@ services:
 
   ganache:
     image: trufflesuite/ganache:latest
-    # platform: linux/amd64
+    # platform: linux/amd64 
     ports:
       - "8545:8545"
     networks:
