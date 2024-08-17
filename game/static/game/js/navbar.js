@@ -76,20 +76,15 @@ function logout() {
     })
     .then(response => {
         if (response.ok) {
-            // console.log('Logout successful');
-			console.log(gettext('Logout successful'));  // 수정: 번역 함수 사용
-            // Redirect to login page or home page
-            window.location.href = '/login/';
+            console.log(gettext('Logout successful'));
+            // 로그아웃 후 페이지 새로고침
+            window.location.replace('/login/');
         } else {
-            // console.error('Logout failed');
-			console.error(gettext('Logout failed'));  // 수정: 번역 함수 사용
-            // Handle logout failure (e.g., show an error message)
+            console.error(gettext('Logout failed'));
         }
     })
     .catch(error => {
-        // console.error('Error during logout:', error);
-		console.error(gettext('Error during logout:'), error);  // 수정: 번역 함수 사용
-        // Handle error (e.g., show an error message)
+        console.error(gettext('Error during logout:'), error);
     });
 }
 

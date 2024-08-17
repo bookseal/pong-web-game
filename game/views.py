@@ -199,7 +199,10 @@ def get_csrf_token(request):
     return Response({"detail": "CSRF cookie set"})
 
 from django.contrib.auth import logout as auth_logout
+from django.views.decorators.cache import never_cache
+
 # Logout view
+@never_cache
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @ensure_csrf_cookie
@@ -227,6 +230,10 @@ def logout_view(request):
 
         # Prepare the response
         response = Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
+
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
 
         # Remove JWT cookies
         response.delete_cookie('access_token', domain=settings.SESSION_COOKIE_DOMAIN, samesite='Lax')
