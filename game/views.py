@@ -1,35 +1,19 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie, csrf_protect
-from django.conf import settings
 from django.http import JsonResponse, HttpResponse
 import json
 import requests
-import logging
 from django.contrib.auth import get_user_model, login, logout as django_logout
-from rest_framework import status
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
-from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 from .models import Player, CustomUser  # CustomUser 추가
-import pyotp
-import qrcode
-from io import BytesIO
-from django.http import HttpResponse
 from django.conf import settings
-from django.views.decorators.http import require_GET
-from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import logging
-from .models import CustomUser
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .blockchain_utils import record_score, get_scores
 from django.utils.translation import gettext as _
@@ -37,11 +21,10 @@ from django.shortcuts import redirect
 from django.utils import translation
 from datetime import datetime, timedelta
 
+import qrcode
+import io
 User = get_user_model()
 logger = logging.getLogger(__name__)
-
-def hello_world(request):
-    return HttpResponse("Hello, World!2")
 
 def start_game(request):
     return render(request, 'game/index_spa.html')
@@ -285,10 +268,6 @@ def reset_session(request):
     return response
 
 
-import pyotp
-import qrcode
-import io
-from django.core.files.base import ContentFile
 def get_access_token(code):
     token_url = 'https://api.intra.42.fr/oauth/token'
     data = {
@@ -713,13 +692,12 @@ def get_blockchain_scores(request, player_name):
 def score_check_page(request):
     return render(request, 'game/score_check.html')
 
+
 def change_language(request):
     lang = request.GET.get('lang')
     if not lang:
-        # GET 파라미터에 lang이 없으면 쿠키에서 확인
         lang = request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME)
     if not lang:
-        # 쿠키에도 없으면 기본 언어 사용
         lang = settings.LANGUAGE_CODE
 
     available_languages = [lang_code for lang_code, _ in settings.LANGUAGES]
@@ -730,11 +708,11 @@ def change_language(request):
         lang = settings.LANGUAGE_CODE
         translation.activate(lang)
 
+    logger.info(f"Language changed to: {lang}")  # 추가된 로그
+
     response = redirect(request.META.get('HTTP_REFERER', '/'))
-    
-    # 쿠키 설정 (1년 동안 유효)
-    max_age = 365 * 24 * 60 * 60  # 1년
-    # expires = datetime.datetime.strftime(datetime.datetime.utcnow() + datetime.timedelta(seconds=max_age), "%a, %d-%b-%Y %H:%M:%S GMT")
+
+    max_age = 365 * 24 * 60 * 60
     expires = datetime.strftime(datetime.utcnow() + timedelta(seconds=max_age), "%a, %d-%b-%Y %H:%M:%S GMT")
     response.set_cookie(
         settings.LANGUAGE_COOKIE_NAME,
@@ -745,7 +723,7 @@ def change_language(request):
         secure=settings.SESSION_COOKIE_SECURE or None
     )
 
-    # 세션에도 언어 설정 저장
     request.session[settings.LANGUAGE_COOKIE_NAME] = lang
+    logger.info(f"Language cookie and session updated: {lang}")  # 추가된 로그
 
     return response

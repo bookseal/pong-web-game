@@ -58,7 +58,9 @@ function checkPlayer(playerNumber) {
                 //     // `Username: ${data.username}\nGames Played: ${data.games_played}\nGames Won: ${data.games_won}`;
 				// 	`${gettext('Username')}: ${data.username}\n${data.games_played}\n${data.games_won}`;  // 수정: 번역 함수 사용
 				// statsElement.innerText = `${gettext('Username')}: ${player.username}\n${gettext('Games Played')}: ${player.games_played}\n${gettext('Games Won')}: ${player.games_won}`;
-				statsElement.innerText = `${gettext('Username')}:! ${data.username}\n${gettext('Games Played')}: ${data.games_played}\n${gettext('Games Won')}: ${data.games_won}`;
+				// statsElement.innerText = `${gettext('Username')}:! ${data.username}\n${gettext('Games Played')}: ${data.games_played}\n${gettext('Games Won')}: ${data.games_won}`;
+				statsElement.innerText = `${data.username}\n${data.games_played}\n${data.games_won}`;
+
                 statsElement.classList.remove("error-message");
             }
         })
@@ -297,24 +299,24 @@ function startGameForBeginner() {
     player2Name = document.getElementById('player2Name').value.trim();
 
     if (player1Name === '' || player2Name === '') {
-        document.getElementById('nameError').textContent = 'Both player names are required.';
+        document.getElementById('nameError').textContent = gettext('Both player names are required.');
         return;
     }
 
     if (player1Name === player2Name) {
-        document.getElementById('nameError').textContent = 'Player names must be different.';
+        document.getElementById('nameError').textContent = gettext('Player names must be different.');
         return;
     }
 
     checkPlayerExistence(player1Name, function(player1Exists) {
         if (!player1Exists) {
-            document.getElementById('nameError').textContent = `Player 1 (${player1Name}) does not exist.`;
+			document.getElementById('nameError').textContent = gettext('Player 1 (%s) does not exist.'), [player1Name];  // 수정: 번역 함수 사용
             return;
         }
 
         checkPlayerExistence(player2Name, function(player2Exists) {
             if (!player2Exists) {
-                document.getElementById('nameError').textContent = `Player 2 (${player2Name}) does not exist.`;
+		    	document.getElementById('nameError').textContent = gettext('Player 2 (%s) does not exist.'), [player1Name];  // 수정: 번역 함수 사용
                 return;
             }
 

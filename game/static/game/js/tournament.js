@@ -23,7 +23,7 @@ function checkTournamentPlayer(playerNumber) {
         .catch(error => {
             const statsElement = document.getElementById(`tournamentPlayer${playerNumber}Stats`);
             // statsElement.innerText = `Error: ${error}`;
-			statsElement.innerText = gettext('Error: ') + error;  // 수정: 번역 함수 사용
+			// statsElement.innerText = gettext('Error: ') + error;  // 수정: 번역 함수 사용
             statsElement.classList.add("error-message");
         });
 }
