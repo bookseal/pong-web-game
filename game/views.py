@@ -664,8 +664,8 @@ def get_blockchain_scores(request, player_name):
         print(f"Attempting to get blockchain scores for player: {player_name}")
         scores = get_scores(player_name)
         print(f"Scores retrieved: {scores}")
-        # return JsonResponse({'scores': scores})
-        return JsonResponse({'scores': _(scores)})
+        return JsonResponse({'scores': scores})
+        # return JsonResponse({'scores': _(scores)})
     except Exception as e:
         print(f"Error in get_blockchain_scores view: {str(e)}")
         return JsonResponse({'error': str(e)}, status=500)
