@@ -1,9 +1,10 @@
 from django.urls import path
 from . import views
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from django.views.i18n import JavaScriptCatalog  # 추가: JavaScriptCatalog import
+
 
 urlpatterns = [
-    path('hello/', views.hello_world, name='hello_world'),
     path('', views.index, name='index'),
     # path('index/', views.index, name='index'),
     path('start_game/', views.start_game, name='start_game'),
@@ -22,4 +23,6 @@ urlpatterns = [
 	path('reset_otp/', views.reset_otp, name='reset_otp'),
 	path('get_blockchain_scores/<str:player_name>/', views.get_blockchain_scores, name='get_blockchain_scores'),
     path('score_check/', views.score_check_page, name='score_check_page'),
+	path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),  # 추가: JavaScript 번역 카탈로그 URL
+    path('change_language/', views.change_language, name='change_language'),  # 추가: 언어 변경 URL
 ]

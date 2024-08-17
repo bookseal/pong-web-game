@@ -1,43 +1,30 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie, csrf_protect
-from django.conf import settings
 from django.http import JsonResponse, HttpResponse
 import json
 import requests
-import logging
 from django.contrib.auth import get_user_model, login, logout as django_logout
-from rest_framework import status
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import AuthenticationFailed
-from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
-from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 from .models import Player, CustomUser  # CustomUser 추가
-import pyotp
-import qrcode
-from io import BytesIO
-from django.http import HttpResponse
 from django.conf import settings
-from django.views.decorators.http import require_GET
-from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 import logging
-from .models import CustomUser
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .blockchain_utils import record_score, get_scores
+from django.utils.translation import gettext as _
+from django.shortcuts import redirect
+from django.utils import translation
+from datetime import datetime, timedelta
 
+import qrcode
+import io
 User = get_user_model()
 logger = logging.getLogger(__name__)
-
-def hello_world(request):
-    return HttpResponse("Hello, World!2")
 
 def start_game(request):
     return render(request, 'game/index_spa.html')
@@ -58,7 +45,8 @@ def add_player(request):
             games_won = data.get('games_won', 0)
 
             if not username:
-                return JsonResponse({'error': 'Username is required'}, status=400)
+                # return JsonResponse({'error': 'Username is required'}, status=400)
+                return JsonResponse({'error': _('Username is required')}, status=400)
 
             player, created = Player.objects.get_or_create(
                 username=username,
@@ -66,28 +54,56 @@ def add_player(request):
             )
 
             if not created:
-                return JsonResponse({'error': 'Player with this username already exists'}, status=400)
+                # return JsonResponse({'error': 'Player with this username already exists'}, status=400)
+                return JsonResponse({'error': _('Player with this username already exists')}, status=400)  # 수정: 번역 함수 적용
 
-            return JsonResponse({'message': 'Player created successfully'}, status=201)
+
+            # return JsonResponse({'message': 'Player created successfully'}, status=201)
+            return JsonResponse({'message': _('Player created successfully')}, status=201)  # 수정: 번역 함수 적용
+
 
         except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+            # return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+            return JsonResponse({'error': _('Invalid JSON data')}, status=400)  # 수정: 번역 함수 적용
+
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
     else:
-        return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
+        # return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
+        return JsonResponse({'error': _('Invalid HTTP method')}, status=405)  # 수정: 번역 함수 적용
 
-# Check player
+
+# # Check player
+# def check_player(request, player_name):
+#     try:
+#         player = get_object_or_404(Player, username=player_name)
+#         data = {
+#             'username': player.username,
+#             'games_played': player.games_played,
+#             'games_won': player.games_won,
+#         }
+#     except:
+#         # data = {'error': 'No user found'}
+#         data = {'error': _('No user found')}  # 수정: 번역 함수 적용
+
+#     return JsonResponse(data)
+
 def check_player(request, player_name):
     try:
         player = get_object_or_404(Player, username=player_name)
         data = {
-            'username': player.username,
-            'games_played': player.games_played,
-            'games_won': player.games_won,
+  			# 'username': _('Username: {}').format(player.username),  # 수정: 번역 함수 사용
+            # 'games_played': _('Games Played: {}').format(player.games_played),  # 수정: 번역 함수 사용
+            # 'games_won': _('Games Won: {}').format(player.games_won),  # 수정: 번역 함수 사용
+            # 'username': player.username,
+			# 'games_played': player.games_played,
+			# 'games_won': player.games_won,
+            'username': _('Username: {}').format(player.username),
+            'games_played': _('Games Played: {}').format(player.games_played),
+            'games_won': _('Games Won: {}').format(player.games_won),
         }
     except:
-        data = {'error': 'No user found'}
+        data = {'error': _('No user found')}
     return JsonResponse(data)
 
 # Update winner
@@ -129,7 +145,9 @@ def update_winner(request):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
     else:
-        return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
+        # return JsonResponse({'error': 'Invalid HTTP method'}, status=405)
+        return JsonResponse({'error': _('Invalid HTTP method')}, status=405)  # 수정: 번역 함수 적용
+
 
 def score_check_page(request):
     return render(request, 'game/score_check.html')
@@ -250,10 +268,6 @@ def reset_session(request):
     return response
 
 
-import pyotp
-import qrcode
-import io
-from django.core.files.base import ContentFile
 def get_access_token(code):
     token_url = 'https://api.intra.42.fr/oauth/token'
     data = {
@@ -401,17 +415,23 @@ def verify_2fa(request):
 
         if not username:
             logger.error("No username provided for 2FA verification")
-            return Response({'error': 'Username is required'}, status=status.HTTP_400_BAD_REQUEST)
+            # return Response({'error': 'Username is required'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': _('Username is required')}, status=status.HTTP_400_BAD_REQUEST)  # 수정: 번역 함수 적용
+
 
         try:
             user = User.objects.get(username=username)
         except User.DoesNotExist:
             logger.error(f"User not found: {username}")
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            # return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': _('User not found')}, status=status.HTTP_404_NOT_FOUND)  # 수정: 번역 함수 적용
+
 
         if not user.otp_secret:
             logger.error(f"OTP secret not set for user: {username}")
-            return Response({'error': 'OTP secret not set'}, status=status.HTTP_400_BAD_REQUEST)
+            # return Response({'error': 'OTP secret not set'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': _('OTP secret not set')}, status=status.HTTP_400_BAD_REQUEST)  # 수정: 번역 함수 적용
+
 
         totp = pyotp.TOTP(user.otp_secret)
         if totp.verify(otp_code):
@@ -433,7 +453,8 @@ def verify_2fa(request):
             logger.debug(f"Access token: {access_token[:10]}... (truncated)")
 
             response = JsonResponse({
-                'success': 'OTP verified successfully',
+                # 'success': 'OTP verified successfully',
+                'success': _('OTP verified successfully'),  # 수정: 번역 함수 적용
                 'redirect': '/'  # Redirect to index page
             })
             response.set_cookie('access_token', access_token, httponly=True, secure=True, samesite='Lax')
@@ -445,7 +466,9 @@ def verify_2fa(request):
             return response
         else:
             logger.error(f"Invalid OTP for user: {username}")
-            return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
+            # return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': _('Invalid OTP')}, status=status.HTTP_400_BAD_REQUEST)  # 수정: 번역 함수 적용
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def index(request):
@@ -541,7 +564,9 @@ def reset_otp(request):
         return Response({'qr_image': qr_image}, status=status.HTTP_200_OK)
     except Exception as e:
         logger.error(f"OTP 재발급 오류: {str(e)}")
-        return Response({"error": "OTP 재발급 실패"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # return Response({"error": "OTP 재발급 실패"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": _("OTP reset failed")}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)  # 수정: 번역 함수 적용
+
 
 # verify_otp 함수 추가
 @api_view(['POST'])
@@ -576,7 +601,9 @@ def reset_otp(request):
         return Response({'qr_image': qr_image}, status=status.HTTP_200_OK)
     except Exception as e:
         logger.error(f"OTP 재발급 오류: {str(e)}")
-        return Response({"error": "OTP 재발급 실패"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # return Response({"error": "OTP 재발급 실패"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": _("OTP reset failed")}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)  # 수정: 번역 함수 적용
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -588,17 +615,23 @@ def verify_otp(request):
 
         if not username:
             logger.error("No username provided for 2FA verification")
-            return Response({'error': 'Username is required'}, status=status.HTTP_400_BAD_REQUEST)
+            # return Response({'error': 'Username is required'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': _('Username is required')}, status=status.HTTP_400_BAD_REQUEST)  # 수정: 번역 함수 적용
+
 
         try:
             user = User.objects.get(username=username)
         except User.DoesNotExist:
             logger.error(f"User not found: {username}")
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            # return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': _('User not found')}, status=status.HTTP_404_NOT_FOUND)  # 수정: 번역 함수 적용
+
 
         if not user.otp_secret:
             logger.error(f"OTP secret not set for user: {username}")
-            return Response({'error': 'OTP secret not set'}, status=status.HTTP_400_BAD_REQUEST)
+            # return Response({'error': 'OTP secret not set'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': _('OTP secret not set')}, status=status.HTTP_400_BAD_REQUEST)  # 수정: 번역 함수 적용
+
 
         totp = pyotp.TOTP(user.otp_secret)
         if totp.verify(otp_code):
@@ -612,13 +645,19 @@ def verify_otp(request):
             request.session['user_id'] = user.id
 
             logger.info(f"User {username} 2FA verification complete")
-            return JsonResponse({'success': 'OTP verified successfully', 'redirect': '/'})
+            # return JsonResponse({'success': 'OTP verified successfully', 'redirect': '/'})
+            return JsonResponse({'success': _('OTP verified successfully'), 'redirect': '/'})  # 수정: 번역 함수 적용
+
         else:
             logger.error(f"Invalid OTP for user: {username}")
-            return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
+            # return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': _('Invalid OTP')}, status=status.HTTP_400_BAD_REQUEST)  # 수정: 번역 함수 적용
+
     except Exception as e:
         logger.error(f"OTP verification error: {str(e)}")
-        return Response({"error": "OTP verification failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # return Response({"error": "OTP verification failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": _("OTP verification failed")}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)  # 수정: 번역 함수 적용
+
 
 def get_blockchain_scores(request, player_name):
     try:
@@ -626,9 +665,65 @@ def get_blockchain_scores(request, player_name):
         scores = get_scores(player_name)
         print(f"Scores retrieved: {scores}")
         return JsonResponse({'scores': scores})
+        # return JsonResponse({'scores': _(scores)})
     except Exception as e:
         print(f"Error in get_blockchain_scores view: {str(e)}")
         return JsonResponse({'error': str(e)}, status=500)
 
+# def get_blockchain_scores(request, player_name):
+#     try:
+#         print(f"Attempting to get blockchain scores for player: {player_name}")
+#         scores, timestamps = get_scores(player_name)
+#         print(f"Scores retrieved: {scores}")
+#         formatted_scores = [
+#             {
+#                 'score': _('Score: {}').format(score),
+#                 'time': _('Time: {}').format(datetime.fromtimestamp(timestamp).strftime('%Y.%m.%d %H:%M:%S'))
+#             }
+#             for score, timestamp in zip(scores, timestamps)
+#         ]
+#         return JsonResponse({'scores': formatted_scores, 'title': _('Score Record:')})
+#     except Exception as e:
+#         print(f"Error in get_blockchain_scores view: {str(e)}")
+#         return JsonResponse({'error': str(e)}, status=500)
+
+
+
 def score_check_page(request):
     return render(request, 'game/score_check.html')
+
+
+def change_language(request):
+    lang = request.GET.get('lang')
+    if not lang:
+        lang = request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME)
+    if not lang:
+        lang = settings.LANGUAGE_CODE
+
+    available_languages = [lang_code for lang_code, _ in settings.LANGUAGES]
+
+    if lang in available_languages:
+        translation.activate(lang)
+    else:
+        lang = settings.LANGUAGE_CODE
+        translation.activate(lang)
+
+    logger.info(f"Language changed to: {lang}")  # 추가된 로그
+
+    response = redirect(request.META.get('HTTP_REFERER', '/'))
+
+    max_age = 365 * 24 * 60 * 60
+    expires = datetime.strftime(datetime.utcnow() + timedelta(seconds=max_age), "%a, %d-%b-%Y %H:%M:%S GMT")
+    response.set_cookie(
+        settings.LANGUAGE_COOKIE_NAME,
+        lang,
+        max_age=max_age,
+        expires=expires,
+        domain=settings.SESSION_COOKIE_DOMAIN,
+        secure=settings.SESSION_COOKIE_SECURE or None
+    )
+
+    request.session[settings.LANGUAGE_COOKIE_NAME] = lang
+    logger.info(f"Language cookie and session updated: {lang}")  # 추가된 로그
+
+    return response

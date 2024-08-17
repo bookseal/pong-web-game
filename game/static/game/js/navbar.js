@@ -4,7 +4,8 @@ function addPlayer(modal) {
     const gamesWon = document.getElementById("gamesWon").value;
 
     if (!username) {
-        alert('Username is required');
+        // alert('Username is required');
+		alert(gettext('Username is required'));  // 수정: 번역 함수 사용
         return;
     }
 
@@ -19,15 +20,18 @@ function addPlayer(modal) {
     .then(response => response.json())
     .then(data => {
         if (data.error) {
-            alert(`Error: ${data.error}`);
+            // alert(`Error: ${data.error}`);
+			alert(gettext('Error: ') + data.error);  // 수정: 번역 함수 사용
         } else {
-            alert('Player created successfully');
+            // alert('Player created successfully');
+			alert(gettext('Player created successfully'));  // 수정: 번역 함수 사용
             document.getElementById("createPlayerForm").reset();
             modal.hide();
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        // console.error('Error:', error);
+		console.error(gettext('Error:'), error);  // 수정: 번역 함수 사용
     });
 }
 document.addEventListener("DOMContentLoaded", function() {
@@ -38,7 +42,8 @@ document.addEventListener("DOMContentLoaded", function() {
         event.preventDefault(); // 기본 동작 방지
         // SPA 루트 이동 로직 추가 (예: 페이지 변경 또는 컴포넌트 로드)
         // 예시: mainContent.innerHTML = "Root content loaded...";
-        console.log("Navigated to root URL");
+        // console.log("Navigated to root URL");
+		console.log(gettext("Navigated to root URL"));  // 수정: 번역 함수 사용
         // 루트 콘텐츠 로드 함수를 호출하거나 페이지 상태를 변경
         loadRootContent();
     });
@@ -71,16 +76,19 @@ function logout() {
     })
     .then(response => {
         if (response.ok) {
-            console.log('Logout successful');
+            // console.log('Logout successful');
+			console.log(gettext('Logout successful'));  // 수정: 번역 함수 사용
             // Redirect to login page or home page
             window.location.href = '/login/';
         } else {
-            console.error('Logout failed');
+            // console.error('Logout failed');
+			console.error(gettext('Logout failed'));  // 수정: 번역 함수 사용
             // Handle logout failure (e.g., show an error message)
         }
     })
     .catch(error => {
-        console.error('Error during logout:', error);
+        // console.error('Error during logout:', error);
+		console.error(gettext('Error during logout:'), error);  // 수정: 번역 함수 사용
         // Handle error (e.g., show an error message)
     });
 }
@@ -111,7 +119,8 @@ function loadRootContent() {
         if (content) {
             document.getElementById('mainContent').innerHTML = content.innerHTML;
         } else {
-            console.error('Main content not found in the fetched HTML');
+            // console.error('Main content not found in the fetched HTML');
+			console.error(gettext('Main content not found in the fetched HTML'));  // 수정: 번역 함수 사용
         }
 		// URL을 홈으로 변경
 		history.pushState(null, '', '/');
@@ -124,6 +133,7 @@ function loadRootContent() {
         }
     })
     .catch(error => {
-        console.error('Error loading root content:', error);
+        // console.error('Error loading root content:', error);
+		console.error(gettext('Error loading root content:'), error);  // 수정: 번역 함수 사용
     });
 }

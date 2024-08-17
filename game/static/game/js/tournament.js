@@ -11,16 +11,19 @@ function checkTournamentPlayer(playerNumber) {
         .then(data => {
             const statsElement = document.getElementById(`tournamentPlayer${playerNumber}Stats`);
             if (data.error) {
-                statsElement.innerText = `Error: No user found`;
+                // statsElement.innerText = `Error: No user found`;
+				statsElement.innerText = gettext('Error: No user found');  // 수정: 번역 함수 사용
                 statsElement.classList.add("error-message");
             } else {
-                statsElement.innerText = `Username: ${data.username}\nGames Played: ${data.games_played}\nGames Won: ${data.games_won}`;
+                // statsElement.innerText = `Username: ${data.username}\nGames Played: ${data.games_played}\nGames Won: ${data.games_won}`;
+				statsElement.innerText = `${gettext('Username')}: ${data.username}\n${data.games_played}\n${data.games_won}`;  // 수정: 번역 함수 사용
                 statsElement.classList.remove("error-message");
             }
         })
         .catch(error => {
             const statsElement = document.getElementById(`tournamentPlayer${playerNumber}Stats`);
-            statsElement.innerText = `Error: ${error}`;
+            // statsElement.innerText = `Error: ${error}`;
+			// statsElement.innerText = gettext('Error: ') + error;  // 수정: 번역 함수 사용
             statsElement.classList.add("error-message");
         });
 }
@@ -32,7 +35,8 @@ function startTournament() {
     for (let i = 1; i <= 4; i++) {
         const playerName = document.getElementById(`tournamentPlayer${i}Name`).value.trim();
         if (playerName === '') {
-            document.getElementById('tournamentError').textContent = 'All player names are required.';
+            // document.getElementById('tournamentError').textContent = 'All player names are required.';
+			document.getElementById('tournamentError').textContent = gettext('All player names are required.');  // 수정: 번역 함수 사용
             return false;
         }
         tournamentPlayers.push(playerName);
@@ -40,7 +44,8 @@ function startTournament() {
 
     // Check if all player names are unique
     if (new Set(tournamentPlayers).size !== tournamentPlayers.length) {
-        document.getElementById('tournamentError').textContent = 'All player names must be different.';
+        // document.getElementById('tournamentError').textContent = 'All player names must be different.';
+		document.getElementById('tournamentError').textContent = gettext('All player names must be different.');  // 수정: 번역 함수 사용
         return false;
     }
 
@@ -87,7 +92,9 @@ function displayTournamentWinner(winner) {
     winnerText.style.fontSize = '32px';
     winnerText.style.fontWeight = 'bold';
     winnerText.style.textAlign = 'center';
-    winnerText.innerHTML = `Tournament Winner: ${winner}!<br><br>Click to start a new tournament`;
+    // winnerText.innerHTML = `Tournament Winner: ${winner}!<br><br>Click to start a new tournament`;
+	// winnerText.innerHTML = interpolate(gettext('Tournament Winner: %s!<br><br>Click to start a new tournament'), [winner]);  // 수정: 번역 함수 사용
+	winnerText.innerHTML = gettext('Tournament Winner: %s!<br><br>Click to start a new tournament'), [winner];  // 수정: 번역 함수 사용
     document.getElementById('gameContainer').appendChild(winnerText);
 
     document.getElementById('gameContainer').onclick = () => {

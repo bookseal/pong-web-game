@@ -1,0 +1,199 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-08-16 12:01+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Setup"
+msgstr "Setup"
+
+msgid "Verification"
+msgstr "Verification"
+
+msgid "Verify"
+msgstr "Verify"
+
+msgid "Scan this QR code with your 2FA app:"
+msgstr "Scan this QR code with your 2FA app:"
+
+msgid "Enter the OTP from your app:"
+msgstr "Enter the OTP from your app:"
+
+msgid "2FA"
+msgstr "2FA"
+
+msgid "setup"
+msgstr "setup"
+
+msgid "verification"
+msgstr "verification"
+
+msgid "complete!"
+msgstr "complete!"
+
+msgid "Reset OTP"
+msgstr "Reset OTP"
+
+msgid "Done"
+msgstr "Done"
+
+msgid "Pong Web Game"
+msgstr "Pong Web Game"
+
+msgid "Create New Player"
+msgstr "Create New Player"
+
+msgid "Tournament"
+msgstr "Tournament"
+
+msgid "Logout"
+msgstr "Logout"
+
+msgid "Username"
+msgstr "Username"
+
+msgid "Games Played"
+msgstr "Games Played"
+
+msgid "Games Won"
+msgstr "Games Won"
+
+msgid "Create"
+msgstr "Create"
+
+msgid "Start Tournament"
+msgstr "Start Tournament"
+
+msgid "Player 1"
+msgstr "Player 1"
+
+msgid "Confirm"
+msgstr "Confirm"
+
+msgid "Player 2"
+msgstr "Player 2"
+
+msgid "Player 3"
+msgstr "Player 3"
+
+msgid "Player 4"
+msgstr "Player 4"
+
+msgid "Close"
+msgstr "Close"
+
+msgid "Pong Game"
+msgstr "Pong Game"
+
+msgid "Enter name"
+msgstr "Enter name"
+
+msgid "Start Game"
+msgstr "Start Game"
+
+msgid "Start Game for Beginner"
+msgstr "Start Game for Beginner"
+
+msgid "Reset Session"
+msgstr "Reset Session"
+
+msgid "Check Blockchain Scores"
+msgstr "Check Blockchain Scores"
+
+msgid "Enter Player 1 Name"
+msgstr "Enter Player 1 Name"
+
+msgid "Enter Player 2 Name"
+msgstr "Enter Player 2 Name"
+
+msgid "Score Check"
+msgstr "Score Check"
+
+msgid "Player Name"
+msgstr "Player Name"
+
+msgid "Check Score"
+msgstr "Check Score"
+
+msgid "Login"
+msgstr "Login"
+
+msgid "Login with 42Auth"
+msgstr "Login with 42Auth"
+
+msgid "Username is required"
+msgstr "Username is required"
+
+msgid "Player with this username already exists"
+msgstr "Player with this username already exists"
+
+msgid "Player created successfully"
+msgstr "Player created successfully"
+
+msgid "Invalid JSON data"
+msgstr "Invalid JSON data"
+
+msgid "Invalid HTTP method"
+msgstr "Invalid HTTP method"
+
+msgid "Username: {}"
+msgstr "Username: {}"
+
+msgid "Games Played: {}"
+msgstr "Games Played: {}"
+
+msgid "Games Won: {}"
+msgstr "Games Won: {}"
+
+msgid "No user found"
+msgstr "No user found"
+
+msgid "User not found"
+msgstr "User not found"
+
+msgid "OTP secret not set"
+msgstr "OTP secret not set"
+
+msgid "OTP verified successfully"
+msgstr "OTP verified successfully"
+
+msgid "Invalid OTP"
+msgstr "Invalid OTP"
+
+msgid "OTP reset failed"
+msgstr "OTP reset failed"
+
+msgid "OTP verification failed"
+msgstr "OTP verification failed"
+
+msgid "Score: {}"
+msgstr "Score: {}"
+
+msgid "Time: {}"
+msgstr "Time: {}"
+
+msgid "Score Record:"
+msgstr "Score Record:"
+
+msgid "English"
+msgstr "English"
+
+msgid "Korean"
+msgstr "Korean"
+
+msgid "French"
+msgstr "French"

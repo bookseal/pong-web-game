@@ -1,31 +1,64 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% block content %}
-<h1>점수 확인</h1>
+<!-- <h1>Score Check</h1> -->
+<h1>{% trans "Score Check" %}</h1>
 
-<input type="text" id="playerName" placeholder="플레이어 이름">
-<button onclick="checkScore()">점수 확인</button>
+<!-- <input type="text" id="playerName" placeholder="Player Name"> -->
+<input type="text" id="playerName" placeholder="{% trans 'Player Name' %}">
+<!-- <button onclick="checkScore()">Check Score</button> -->
+<button onclick="checkScore()">{% trans "Check Score" %}</button>
 <div id="scoreResult"></div>
 
 <script>
+// function checkScore() {
+//     const playerName = document.getElementById('playerName').value;
+//     fetch(`/get_blockchain_scores/${playerName}/`)
+//         .then(response => response.json())
+//         .then(data => {
+//             if (data.error) {
+// 				document.getElementById('scoreResult').innerText = `Error: ${data.error}`;
+//             } else {
+//                 const scores = data.scores[0];  // 점수 배열
+//                 const timestamps = data.scores[1];  // 타임스탬프 배열
+// 				// let result = 'Score Record:\n';
+// 				let result = '\n';
+//                 for (let i = 0; i < scores.length; i++) {
+// 					// result += `Score: ${scores[i]}, Time: ${new Date(timestamps[i] * 1000).toLocaleString()}\n`;
+// 					result += `${scores[i]}, ${new Date(timestamps[i] * 1000).toLocaleString()}\n`;
+//                 }
+//                 document.getElementById('scoreResult').innerText = result;
+//             }
+//         })
+//         .catch(error => {
+// 			document.getElementById('scoreResult').innerText = `Error: ${error}`;
+//         });
+// }
+
 function checkScore() {
     const playerName = document.getElementById('playerName').value;
     fetch(`/get_blockchain_scores/${playerName}/`)
         .then(response => response.json())
         .then(data => {
             if (data.error) {
-                document.getElementById('scoreResult').innerText = `오류: ${data.error}`;
+                document.getElementById('scoreResult').innerText = `Error: ${data.error}`;
             } else {
                 const scores = data.scores[0];  // 점수 배열
                 const timestamps = data.scores[1];  // 타임스탬프 배열
-                let result = '점수 기록:\n';
+                let result = '\n';
                 for (let i = 0; i < scores.length; i++) {
-                    result += `점수: ${scores[i]}, 시간: ${new Date(timestamps[i] * 1000).toLocaleString()}\n`;
+                    const date = new Date(timestamps[i] * 1000);
+                    const hours = String(date.getHours()).padStart(2, '0');
+                    const minutes = String(date.getMinutes()).padStart(2, '0');
+                    const seconds = String(date.getSeconds()).padStart(2, '0');
+                    const formattedTime = `${hours}:${minutes}:${seconds}`;
+                    result += `${scores[i]}, ${formattedTime}\n`;
                 }
                 document.getElementById('scoreResult').innerText = result;
             }
         })
         .catch(error => {
-            document.getElementById('scoreResult').innerText = `오류: ${error}`;
+            document.getElementById('scoreResult').innerText = `Error: ${error}`;
         });
 }
 </script>

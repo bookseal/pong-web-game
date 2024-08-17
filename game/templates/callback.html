@@ -1,9 +1,13 @@
+{% load i18n %}
+
 <!DOCTYPE html>
-<html lang="en">
+<!-- <html lang="en"> -->
+<html lang="{{ LANGUAGE_CODE }}"></html>
 <head>
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token }}">
-    <title>2FA {% if setup_mode %}Setup{% else %}Verification{% endif %}</title>
+    <!-- <title>2FA {% if setup_mode %}Setup{% else %}Verification{% endif %}</title> -->
+	<title>2FA {% if setup_mode %}{% trans "Setup" %}{% else %}{% trans "Verification" %}{% endif %}</title>
     <style>
         #qr-code {
             width: 50%;
@@ -16,28 +20,36 @@
 </head>
 <body>
     <div id="2fa-setup">
-        <h2>{% if setup_mode %}Setup{% else %}Verify{% endif %} 2FA</h2>
+        <!-- <h2>{% if setup_mode %}Setup{% else %}Verify{% endif %} 2FA</h2> -->
+		<h2>{% if setup_mode %}{% trans "Setup" %}{% else %}{% trans "Verify" %}{% endif %} 2FA</h2>
         {% if setup_mode %}
-            <p>Scan this QR code with your 2FA app:</p>
+            <!-- <p>Scan this QR code with your 2FA app:</p> -->
+			<p>{% trans "Scan this QR code with your 2FA app:" %}</p>
             <img id="qr-code" src="data:image/png;base64,{{ qr_image }}" alt="QR Code">
         {% endif %}
-        <p>Enter the OTP from your app:</p>
+        <!-- <p>Enter the OTP from your app:</p> -->
+		<p>{% trans "Enter the OTP from your app:" %}</p>
         <form id="2fa-form">
             <input type="hidden" id="username" name="username" value="{{ user.username }}">
             <input type="text" id="otp" name="otp" placeholder="Enter OTP" required>
-            <button type="button" id="verify2FAButton">Verify</button>
+            <!-- <button type="button" id="verify2FAButton">Verify</button> -->
+            <button type="button" id="verify2FAButton">{% trans "Verify" %}</button>
         </form>
     </div>
     <div id="2fa-message">
-        <p>2FA {% if setup_mode %}setup{% else %}verification{% endif %} complete!</p>
+        <!-- <p>2FA {% if setup_mode %}setup{% else %}verification{% endif %} complete!</p> -->
+		<p>{% trans "2FA" %} {% if setup_mode %}{% trans "setup" %}{% else %}{% trans "verification" %}{% endif %} {% trans "complete!" %}</p>
     </div>
 
 
-<!--  -->
+
 	<!-- OTP 재발급을 위한 버튼과 스크립트 추가 -->
-	<button id="reset-otp-button">Reset OTP</button>
+	<!-- <button id="reset-otp-button">Reset OTP</button> -->
+	<!-- <button id="reset-otp-button">{% trans "Reset OTP" %}</button> -->
+	<button id="reset-otp-button" style="display: none;">{% trans "Reset OTP" %}</button>
     <img id="qr-code-image" alt="QR Code" style="display: none;">
-    <button id="done-button" style="display: none;">Done</button>
+    <!-- <button id="done-button" style="display: none;">Done</button> -->
+    <button id="done-button" style="display: none;">{% trans "Done" %}</button>
 
     <script>
         document.getElementById('reset-otp-button').addEventListener('click', function() {
@@ -71,7 +83,8 @@
             const otpCode = document.getElementById('otp').value;
             const username = document.getElementById('username').value;
 
-            fetch('/verify_otp/', {
+            // fetch('/verify_otp/', {
+			fetch('/verify_2fa/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
