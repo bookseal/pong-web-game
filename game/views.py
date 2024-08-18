@@ -28,9 +28,10 @@ from django.contrib.auth import login
 from rest_framework_simplejwt.tokens import RefreshToken
 import pyotp
 from .models import CustomUser
-
 import qrcode
 import io
+
+
 User = get_user_model()
 logger = logging.getLogger(__name__)
 

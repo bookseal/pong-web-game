@@ -1,58 +1,78 @@
 {% load i18n %}
 
 <!DOCTYPE html>
-<!-- <html lang="en"> -->
-<html lang="{{ LANGUAGE_CODE }}"></html>
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token }}">
-    <!-- <title>2FA {% if setup_mode %}Setup{% else %}Verification{% endif %}</title> -->
-	<title>2FA {% if setup_mode %}{% trans "Setup" %}{% else %}{% trans "Verification" %}{% endif %}</title>
+    <title>2FA {% if setup_mode %}{% trans "Setup" %}{% else %}{% trans "Verification" %}{% endif %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
+        body {
+            background-color: #f8f9fa;  /* 옅은 회색 배경 */
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #2fa-setup, #2fa-message {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
         #qr-code {
             width: 50%;
             height: auto;
+            margin-bottom: 20px;
         }
-        #2fa-message {
-            display: none;
+        .btn-custom {
+            background-color: #007bff;
+            color: white;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .btn-custom:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
-    <div id="2fa-setup">
-        <!-- <h2>{% if setup_mode %}Setup{% else %}Verify{% endif %} 2FA</h2> -->
-		<h2>{% if setup_mode %}{% trans "Setup" %}{% else %}{% trans "Verify" %}{% endif %} 2FA</h2>
-      {% if setup_mode and qr_image %}
-    <p>{% trans "Scan this QR code with your 2FA app:" %}</p>
-    <img id="qr-code" src="data:image/png;base64,{{ qr_image }}" alt="QR Code">
+    <div id="2fa-setup" class="container">
+        <h2>{% if setup_mode %}{% trans "Setup" %}{% else %}{% trans "Verify" %}{% endif %} 2FA</h2>
+        {% if setup_mode and qr_image %}
+            <p>{% trans "Scan this QR code with your 2FA app:" %}</p>
+            <img id="qr-code" src="data:image/png;base64,{{ qr_image }}" alt="QR Code">
         {% endif %}
-        <!-- <p>Enter the OTP from your app:</p> -->
-		<p>{% trans "Enter the OTP from your app:" %}</p>
+        <p>{% trans "Enter the OTP from your app:" %}</p>
         <form id="2fa-form">
             <input type="hidden" id="username" name="username" value="{{ user.username }}">
-            <input type="text" id="otp" name="otp" placeholder="Enter OTP" required>
-            <!-- <button type="button" id="verify2FAButton">Verify</button> -->
-            <button type="button" id="verify2FAButton">{% trans "Verify" %}</button>
+            <input type="text" id="otp" name="otp" class="form-control mb-3" placeholder="{% trans 'Enter OTP' %}" required>
+            <button type="button" id="verify2FAButton" class="btn btn-custom">{% trans "Verify" %}</button>
         </form>
     </div>
-    <div id="2fa-message">
-        <!-- <p>2FA {% if setup_mode %}setup{% else %}verification{% endif %} complete!</p> -->
-		<p>{% trans "2FA" %} {% if setup_mode %}{% trans "setup" %}{% else %}{% trans "verification" %}{% endif %} {% trans "complete!" %}</p>
+    <div id="2fa-message" class="container" style="display: none;">
+        <p>{% trans "2FA" %} {% if setup_mode %}{% trans "setup" %}{% else %}{% trans "verification" %}{% endif %} {% trans "complete!" %}</p>
     </div>
 
-
-
-	<!-- OTP 재발급을 위한 버튼과 스크립트 추가 -->
-	<!-- <button id="reset-otp-button">Reset OTP</button> -->
-	<!-- <button id="reset-otp-button">{% trans "Reset OTP" %}</button> -->
-	<button id="reset-otp-button" style="display: none;">{% trans "Reset OTP" %}</button>
+    <button id="reset-otp-button" class="btn btn-custom" style="display: none;">{% trans "Reset OTP" %}</button>
     <img id="qr-code-image" alt="QR Code" style="display: none;">
-    <!-- <button id="done-button" style="display: none;">Done</button> -->
-    <button id="done-button" style="display: none;">{% trans "Done" %}</button>
+    <button id="done-button" class="btn btn-custom" style="display: none;">{% trans "Done" %}</button>
+
+    <!-- jQuery, Popper.js, Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
         document.getElementById('reset-otp-button').addEventListener('click', function() {
-            const username = document.getElementById('username').value;  // 사용자 이름을 가져옴
+            const username = document.getElementById('username').value;
             fetch('/reset_otp/', {
                 method: 'POST',
                 headers: {
@@ -60,17 +80,16 @@
                     'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
                 credentials: 'same-origin',
-                body: JSON.stringify({ username: username })  // 사용자 이름을 요청 본문에 포함
+                body: JSON.stringify({ username: username })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.qr_image) {
-                    // 새로고침 없이 QR 코드를 업데이트
                     document.getElementById('qr-code-image').src = 'data:image/png;base64,' + data.qr_image;
                     document.getElementById('qr-code-image').style.display = 'block';
-                    document.getElementById('2fa-form').style.display = 'none';  // 입력 폼 숨김
-                    document.getElementById('reset-otp-button').style.display = 'none';  // 리셋 버튼 숨김
-                    document.getElementById('done-button').style.display = 'block';  // Done 버튼 표시
+                    document.getElementById('2fa-form').style.display = 'none';
+                    document.getElementById('reset-otp-button').style.display = 'none';
+                    document.getElementById('done-button').style.display = 'block';
                 } else {
                     alert('Failed to reset OTP.');
                 }
@@ -82,8 +101,7 @@
             const otpCode = document.getElementById('otp').value;
             const username = document.getElementById('username').value;
 
-            // fetch('/verify_otp/', {
-			fetch('/verify_2fa/', {
+            fetch('/verify_2fa/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -112,24 +130,23 @@
             document.getElementById('2fa-form').style.display = 'block';
         });
 
-        // 페이지 로드 시 세션에서 QR 코드를 가져와 표시
+        document.getElementById('otp').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                document.getElementById('verify2FAButton').click();
+            }
+        });
+
         window.onload = function() {
             const qrImage = "{{ request.session.qr_image|default:'' }}";
             if (qrImage) {
                 document.getElementById('qr-code-image').src = 'data:image/png;base64,' + qrImage;
                 document.getElementById('qr-code-image').style.display = 'block';
-                document.getElementById('2fa-form').style.display = 'none';  // 입력 폼 숨김
-                document.getElementById('reset-otp-button').style.display = 'none';  // 리셋 버튼 숨김
-                document.getElementById('done-button').style.display = 'block';  // Done 버튼 표시
+                document.getElementById('2fa-form').style.display = 'none';
+                document.getElementById('reset-otp-button').style.display = 'none';
+                document.getElementById('done-button').style.display = 'block';
             }
         };
     </script>
-
-
-<!--  -->
-
-    <script src="/static/js/js_translations.js"></script>
-
-    <script src="/static/js/2fa.js"></script>
 </body>
 </html>
