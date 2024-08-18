@@ -25,4 +25,6 @@ urlpatterns = [
     path('score_check/', views.score_check_page, name='score_check_page'),
 	path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),  # 추가: JavaScript 번역 카탈로그 URL
     path('change_language/', views.change_language, name='change_language'),  # 추가: 언어 변경 URL
+    path('api/check-auth/', views.check_auth, name='check_auth'),
+
 ]

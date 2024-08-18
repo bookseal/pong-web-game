@@ -22,10 +22,9 @@
     <div id="2fa-setup">
         <!-- <h2>{% if setup_mode %}Setup{% else %}Verify{% endif %} 2FA</h2> -->
 		<h2>{% if setup_mode %}{% trans "Setup" %}{% else %}{% trans "Verify" %}{% endif %} 2FA</h2>
-        {% if setup_mode %}
-            <!-- <p>Scan this QR code with your 2FA app:</p> -->
-			<p>{% trans "Scan this QR code with your 2FA app:" %}</p>
-            <img id="qr-code" src="data:image/png;base64,{{ qr_image }}" alt="QR Code">
+      {% if setup_mode and qr_image %}
+    <p>{% trans "Scan this QR code with your 2FA app:" %}</p>
+    <img id="qr-code" src="data:image/png;base64,{{ qr_image }}" alt="QR Code">
         {% endif %}
         <!-- <p>Enter the OTP from your app:</p> -->
 		<p>{% trans "Enter the OTP from your app:" %}</p>
@@ -129,6 +128,7 @@
 
 <!--  -->
 
+    <script src="/static/js/js_translations.js"></script>
 
     <script src="/static/js/2fa.js"></script>
 </body>

@@ -37,102 +37,100 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-async function verify2FA() {
+// 입력 유효성 검사
+function validateInputs() {
     const otpInput = document.getElementById('otp');
     const usernameInput = document.getElementById('username');
 
     if (!otpInput || !usernameInput) {
-        // console.error('OTP or username input not found');
-		console.error(gettext('OTP or username input not found'));  // 수정: 번역 함수 사용
-        // alert('An error occurred. Please try refreshing the page.');
-		alert(gettext('An error occurred. Please try refreshing the page.'));  // 수정: 번역 함수 사용
-        return;
+        console.error(gettext('OTP or username input not found'));
+        alert(gettext('An error occurred. Please try refreshing the page.'));
+        return null;
     }
 
     const otpCode = otpInput.value;
     const username = usernameInput.value;
-    const csrfToken = getCsrfToken();
-
-    // console.log(`Attempting to verify 2FA for user: ${username}`);
-	console.log(gettext(`Attempting to verify 2FA for user: ${username}`));  // 수정: 번역 함수 사용
-    // console.log(`OTP Code: ${otpCode}`);
-	console.log(gettext(`OTP Code: ${otpCode}`));  // 수정: 번역 함수 사용
-    // console.log(`CSRF Token: ${csrfToken}`);
-	console.log(gettext(`CSRF Token: ${csrfToken}`));  // 수정: 번역 함수 사용
-
 
     if (!username) {
-        // console.error('Username is missing or empty');
-		console.error(gettext('Username is missing or empty'));  // 수정: 번역 함수 사용
-        // alert('An error occurred. Username is missing.');
-		alert(gettext('An error occurred. Username is missing.'));  // 수정: 번역 함수 사용
-        return;
+        console.error(gettext('Username is missing or empty'));
+        alert(gettext('An error occurred. Username is missing.'));
+        return null;
     }
 
     if (!otpCode) {
-        // console.error('OTP is missing or empty');
-		console.error(gettext('OTP is missing or empty'));  // 수정: 번역 함수 사용
-        // alert('Please enter the OTP.');
-		alert(gettext('Please enter the OTP.'));  // 수정: 번역 함수 사용
-        return;
+        console.error(gettext('OTP is missing or empty'));
+        alert(gettext('Please enter the OTP.'));
+        return null;
     }
 
-    const requestBody = {
-        otp_code: otpCode,
-        username: username
-    };
-    // console.log('Request body:', JSON.stringify(requestBody));
-	console.log(gettext('Request body:'), JSON.stringify(requestBody));  // 수정: 번역 함수 사용
+    return { otpCode, username };
+}
+
+// 2FA 검증 요청 보내기
+async function send2FAVerificationRequest(otpCode, username) {
+    const csrfToken = getCsrfToken();
+    const requestBody = { otp_code: otpCode, username: username };
+
+    console.log(gettext('Attempting to verify 2FA for user:'), username);
+    console.log(gettext('OTP Code:'), otpCode);
+    console.log(gettext('CSRF Token:'), csrfToken);
+    console.log(gettext('Request body:'), JSON.stringify(requestBody));
+
+    const response = await fetch('/verify_2fa/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify(requestBody),
+        credentials: 'include'
+    });
+
+    console.log(gettext('Response status:'), response.status);
+    console.log(gettext('Response headers:'), response.headers);
+    console.log(gettext('Cookies after response:'), document.cookie);
+
+    return response;
+}
+
+// 응답 처리
+function handle2FAResponse(response, data) {
+    console.log(gettext('Response data:'), data);
+
+    if (response.ok) {
+        console.log(gettext('2FA verification successful'));
+        const messageElement = document.getElementById('2fa-message');
+        const setupElement = document.getElementById('2fa-setup');
+        if (messageElement && setupElement) {
+            messageElement.style.display = 'block';
+            setupElement.style.display = 'none';
+        } else {
+            console.error(gettext('2FA message or setup element not found'));
+        }
+        alert("2FA verification successful. Redirecting to main page...");
+        setTimeout(() => {
+            console.log(gettext('Redirecting to main page'));
+            window.location.href = '/';
+        }, 5000);
+    } else {
+        console.error(gettext('Error verifying OTP:'), data.error);
+        alert(gettext('Invalid OTP. Please try again.'));
+    }
+}
+
+// 메인 verify2FA 함수
+async function verify2FA() {
+    alert(gettext('Verifying 2FA...'));
+    const inputs = validateInputs();
+    if (!inputs) return;
 
     try {
-        // console.log('Sending request to /verify_2fa/');
-		console.log(gettext('Sending request to /verify_2fa/'));  // 수정: 번역 함수 사용
-        const response = await fetch('/verify_2fa/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
-            },
-            body: JSON.stringify(requestBody),
-            credentials: 'include'
-        });
-
-        // console.log(`Response status: ${response.status}`);
-		console.log(gettext(`Response status: ${response.status}`));  // 수정: 번역 함수 사용
+        const response = await send2FAVerificationRequest(inputs.otpCode, inputs.username);
         const data = await response.json();
-        // console.log('Response data:', data);
-		console.log(gettext('Response data:'), data);  // 수정: 번역 함수 사용
-
-        if (response.ok) {
-            // console.log('2FA verification successful');
-			console.log(gettext('2FA verification successful'));  // 수정: 번역 함수 사용
-
-            const messageElement = document.getElementById('2fa-message');
-            const setupElement = document.getElementById('2fa-setup');
-            if (messageElement && setupElement) {
-                messageElement.style.display = 'block';
-                setupElement.style.display = 'none';
-            } else {
-                // console.error('2FA message or setup element not found');
-				console.error(gettext('2FA message or setup element not found'));  // 수정: 번역 함수 사용
-            }
-
-            setTimeout(() => {
-                // console.log('Redirecting to main page');
-				console.log(gettext('Redirecting to main page'));  // 수정: 번역 함수 사용
-                window.location.href = '/';
-            }, 2000);
-        } else {
-            // console.error('Error verifying OTP:', data.error);
-			console.error(gettext('Error verifying OTP:'), data.error);  // 수정: 번역 함수 사용
-            // alert('Invalid OTP. Please try again.');
-			alert(gettext('Invalid OTP. Please try again.'));  // 수정: 번역 함수 사용
-        }
+        handle2FAResponse(response, data);
     } catch (error) {
-        // console.error('Error:', error);
-		console.error(gettext('Error:'), error);  // 수정: 번역 함수 사용
-        // alert('An error occurred. Please try again.');
-		alert(gettext('An error occurred. Please try again.'));  // 수정: 번역 함수 사용
+        console.error(gettext('Error:'), error);
+        alert(gettext('An error occurred. Please try again.'));
     }
 }
 

@@ -108,11 +108,11 @@ const gettext = (function() {
 
     return function(text) {
         const lang = document.documentElement.lang || 'en';
-        console.log("lang: ", lang);
-        console.log("text: ", text);
-        console.log("translations[lang]: ", translations[lang]);
-        console.log("translations[lang][text]: ", translations[lang][text]);
-        console.log("translations[lang] && translations[lang][text]: ", translations[lang] && translations[lang][text]);
+        // console.log("lang: ", lang);
+        // console.log("text: ", text);
+        // console.log("translations[lang]: ", translations[lang]);
+        // console.log("translations[lang][text]: ", translations[lang][text]);
+        // console.log("translations[lang] && translations[lang][text]: ", translations[lang] && translations[lang][text]);
         return (translations[lang] && translations[lang][text]) || text;
     };
 })();

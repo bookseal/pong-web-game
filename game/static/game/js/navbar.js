@@ -1,3 +1,28 @@
+async function checkAuthStatus() {
+    try {
+        const response = await fetch('/api/check-auth/', {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                // JWT 토큰이 있다면 여기에 추가
+                // 'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+            }
+        });
+        if (response.ok) {
+            const data = await response.json();
+            console.log('User is authenticated:', data.username);
+            return true;
+        } else {
+            console.log('User is not authenticated');
+            return false;
+        }
+    } catch (error) {
+        console.error('Error checking auth status:', error);
+        return false;
+    }
+}
+
 function addPlayer(modal) {
     const username = document.getElementById("username").value;
     const gamesPlayed = document.getElementById("gamesPlayed").value;
@@ -34,59 +59,43 @@ function addPlayer(modal) {
 		console.error(gettext('Error:'), error);  // 수정: 번역 함수 사용
     });
 }
-document.addEventListener("DOMContentLoaded", function() {
-     const homeLink = document.getElementById("homeLink");
 
-    // SPA 방식으로 루트 URL로 이동
-    homeLink.addEventListener("click", function(event) {
-        event.preventDefault(); // 기본 동작 방지
-        // SPA 루트 이동 로직 추가 (예: 페이지 변경 또는 컴포넌트 로드)
-        // 예시: mainContent.innerHTML = "Root content loaded...";
-        // console.log("Navigated to root URL");
-		console.log(gettext("Navigated to root URL"));  // 수정: 번역 함수 사용
-        // 루트 콘텐츠 로드 함수를 호출하거나 페이지 상태를 변경
-        loadRootContent();
-    });
 
-    const createPlayerModal = new bootstrap.Modal(document.getElementById('createPlayerModal'));
+async function logout() {
+    try {
+        // 로그아웃 요청을 서버로 전송
+        const response = await fetch('/logout/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken(),  // CSRF 토큰이 필요하다면 추가
+            },
+            credentials: 'include'  // 쿠키를 함께 전송
+        });
 
-    document.getElementById("createPlayerButton").addEventListener("click", function() {
-        createPlayerModal.show();
-    });
+        // 응답 상태 확인
+        const data = await response.json();
 
-    document.getElementById("createPlayerForm").addEventListener("submit", function(event) {
-        event.preventDefault();
-        addPlayer(createPlayerModal);
-    });
+        console.log('Response status:', response.status);
+        console.log('Response data:', data);
 
-    document.getElementById("logoutButton").addEventListener("click", function() {
-        logout();
-    });
-});
-function logout() {
-    const csrftoken = getCookie('csrftoken');
-
-    fetch('/logout/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': csrftoken,
-            'Content-Type': 'application/json'
-        },
-        credentials: 'same-origin'
-    })
-    .then(response => {
         if (response.ok) {
             console.log(gettext('Logout successful'));
-            // 로그아웃 후 페이지 새로고침
+
+            // 클라이언트 측 토큰 삭제 (쿠키에 저장된 토큰을 사용할 경우 필요하지 않음)
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+
+            // 로그아웃 후 페이지 새로고침 또는 리다이렉트
             window.location.replace('/login/');
         } else {
-            console.error(gettext('Logout failed'));
+            console.error(gettext('Logout failed'), data);
         }
-    })
-    .catch(error => {
+    } catch (error) {
         console.error(gettext('Error during logout:'), error);
-    });
+    }
 }
+
 
 // Helper function to get CSRF token from cookies
 function getCookie(name) {
@@ -132,3 +141,34 @@ function loadRootContent() {
 		console.error(gettext('Error loading root content:'), error);  // 수정: 번역 함수 사용
     });
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+     const homeLink = document.getElementById("homeLink");
+
+    // SPA 방식으로 루트 URL로 이동
+    homeLink.addEventListener("click", function(event) {
+        event.preventDefault(); // 기본 동작 방지
+        // SPA 루트 이동 로직 추가 (예: 페이지 변경 또는 컴포넌트 로드)
+        // 예시: mainContent.innerHTML = "Root content loaded...";
+        // console.log("Navigated to root URL");
+		console.log(gettext("Navigated to root URL"));  // 수정: 번역 함수 사용
+        // 루트 콘텐츠 로드 함수를 호출하거나 페이지 상태를 변경
+        loadRootContent();
+    });
+
+    const createPlayerModal = new bootstrap.Modal(document.getElementById('createPlayerModal'));
+
+    document.getElementById("createPlayerButton").addEventListener("click", function() {
+        createPlayerModal.show();
+    });
+
+    document.getElementById("createPlayerForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        addPlayer(createPlayerModal);
+    });
+
+    document.getElementById("logoutButton").addEventListener("click", function() {
+        logout();
+    });
+    checkAuthStatus();
+});

@@ -17,56 +17,77 @@ function getRefreshToken() {
 
 // CSRF 토큰 가져오기
 function getCsrfToken() {
-    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-}
+    // 먼저 meta 태그에서 CSRF 토큰을 찾습니다
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    if (metaTag) {
+        return metaTag.getAttribute('content');
+    }
 
-// JWT 토큰을 사용하여 API 요청
-async function apiRequest(url, method = 'GET', body = null) {
+    // meta 태그가 없으면 hidden input 필드에서 찾습니다
+    const csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+    if (csrfInput) {
+        return csrfInput.value;
+    }
+
+    // 둘 다 없으면 쿠키에서 찾습니다
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'csrftoken') {
+            return value;
+        }
+    }
+
+    console.error('CSRF token not found');
+    return null;
+}
+function apiRequest(url, method = 'GET', body = null) {
+    const csrfToken = getCsrfToken();
+
+    console.log('API Request URL:', url);
+    console.log('HTTP Method:', method);
+    console.log('CSRF Token:', csrfToken ? 'Present' : 'Not found');
+
     let headers = {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getAccessToken()}`,
-        'X-CSRFToken': getCsrfToken()
     };
+
+    if (csrfToken) {
+        headers['X-CSRFToken'] = csrfToken;
+    }
+
+    console.log('Request Headers:', headers);
 
     const options = {
         method,
         headers,
-        credentials: 'include'
+        credentials: 'include'  // This ensures cookies are sent with the request
     };
 
     if (body) {
         options.body = JSON.stringify(body);
+        console.log('Request Body:', body);
     }
 
-    try {
-        let response = await fetch(url, options);
+    return fetch(url, options)
+        .then(response => {
+            console.log('Response Status:', response.status);
+            console.log('Response OK:', response.ok);
 
-        if (response.status === 401) {
-            // 토큰이 만료된 경우, 갱신 시도
-            const newAccessToken = await refreshAccessToken();
-            if (newAccessToken) {
-                headers.Authorization = `Bearer ${newAccessToken}`;
-                response = await fetch(url, { ...options, headers });
-            } else {
-                // 갱신 실패 시 로그인 페이지로 리다이렉트
-                window.location.href = '/login';
-                return;
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
             }
-        }
-
-        const data = await response.json();
-        if (!response.ok) {
-            // throw new Error(data.detail || 'API request failed');
-			throw new Error(data.detail || gettext('API request failed'));  // 수정: 번역 함수 사용
-        }
-        return data;
-    } catch (error) {
-        // console.error('API request failed:', error);
-		console.error(gettext('API request failed:'), error);  // 수정: 번역 함수 사용
-        throw error;
-    }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response Data:', data);
+            return data;
+        })
+        .catch(error => {
+            console.error('API Request Error:', error);
+            throw error;
+        });
 }
-
 // 액세스 토큰 갱신
 async function refreshAccessToken() {
     const refreshToken = getRefreshToken();
@@ -101,5 +122,3 @@ async function refreshAccessToken() {
         return null;
     }
 }
-
-export { saveTokens, getAccessToken, apiRequest };

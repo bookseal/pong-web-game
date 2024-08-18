@@ -37,42 +37,29 @@ function init() {
 }
 
 function checkPlayer(playerNumber) {
-    console.log("checkPlayer function called for player", playerNumber); // 추가
+    console.log("checkPlayer function called for player", playerNumber);
     const playerName = document.getElementById(`player${playerNumber}Name`).value;
-    console.log("Player name:", playerName); // 추가
+    console.log("Player name:", playerName);
 
-    fetch(`/check_player/${playerName}/`)
-        .then(response => {
-            console.log("Response received:", response); // 추가
-            return response.json();
-        })
+    apiRequest(`/check_player/${playerName}/`, 'GET')
         .then(data => {
-            console.log("Data received:", data); // 추가
+            console.log("Data received:", data);
             const statsElement = document.getElementById(`player${playerNumber}Stats`);
             if (data.error) {
-                // statsElement.innerText = `Error: No user found`;
-				statsElement.innerText = gettext('Error: No user found');  // 수정: 번역 함수 사용
+                statsElement.innerText = gettext('Error: No user found');
                 statsElement.classList.add("error-message");
             } else {
-                // statsElement.innerText =
-                //     // `Username: ${data.username}\nGames Played: ${data.games_played}\nGames Won: ${data.games_won}`;
-				// 	`${gettext('Username')}: ${data.username}\n${data.games_played}\n${data.games_won}`;  // 수정: 번역 함수 사용
-				// statsElement.innerText = `${gettext('Username')}: ${player.username}\n${gettext('Games Played')}: ${player.games_played}\n${gettext('Games Won')}: ${player.games_won}`;
-				// statsElement.innerText = `${gettext('Username')}:! ${data.username}\n${gettext('Games Played')}: ${data.games_played}\n${gettext('Games Won')}: ${data.games_won}`;
-				statsElement.innerText = `${data.username}\n${data.games_played}\n${data.games_won}`;
-
+                statsElement.innerText = `${data.username}\n${data.games_played}\n${data.games_won}`;
                 statsElement.classList.remove("error-message");
             }
         })
         .catch(error => {
-            console.log("Error:", error); // 추가
+            console.error("Error:", error);
             const statsElement = document.getElementById(`player${playerNumber}Stats`);
-            // statsElement.innerText = `Error: ${error}`;
-			statsElement.innerText = gettext('Error: ') + error;  // 수정: 번역 함수 사용
+            statsElement.innerText = gettext('Error: ') + error.message;
             statsElement.classList.add("error-message");
         });
 }
-
 function onKeyDown(event) {
     if (!gameStarted) return;
 
