@@ -62,6 +62,8 @@ const gettext = (function() {
             "Navigated to root URL": "루트 URL로 이동",
             '%s wins!' : '%s 승리!',
             '%s wins!<br><br>Click to play again': '%s 승리!<br><br>다시 플레이하려면 클릭하세요',
+			'OTP or username input not found': "OTP 또는 사용자 이름 입력을 찾을 수 없습니다",
+			"2FA verification successful. Redirecting to main page...": "2FA 확인이 성공했습니다. 메인 페이지로 리디렉션 중...",
         },
         'fr': {
             'Player 1': 'Joueur 1',
@@ -103,6 +105,8 @@ const gettext = (function() {
             "Navigated to root URL": "Navigation vers l'URL racine",
             '%s wins!' : '%s gagne !',
             '%s wins!<br><br>Click to play again': '%s gagne !<br><br>Cliquez pour jouer à nouveau',
+			'OTP or username input not found': "Entrée OTP ou nom d'utilisateur introuvable",
+			"2FA verification successful. Redirecting to main page...": "Vérification 2FA réussie. Redirection vers la page principale...",
             }
     };
 

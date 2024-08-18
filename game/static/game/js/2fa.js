@@ -1,19 +1,14 @@
 document.addEventListener("DOMContentLoaded", function() {
     const qrCodeImg = document.getElementById('qr-code');
     if (qrCodeImg) {
-        // console.log('QR code src:', qrCodeImg.src);
-		console.log(gettext('QR code src:'), qrCodeImg.src);  // 수정: 번역 함수 사용
-        // console.log('QR code src (first 100 chars):', qrCodeImg.src.substring(0, 100));
-		console.log(gettext('QR code src (first 100 chars):'), qrCodeImg.src.substring(0, 100));  // 수정: 번역 함수 사용
+		console.log(gettext('QR code src (first 100 chars):'), qrCodeImg.src.substring(0, 100));  
     } else {
-        // console.log('QR code image element not found');
-		console.log(gettext('QR code image element not found'));  // 수정: 번역 함수 사용
+		console.log(gettext('QR code image element not found'));  
     }
 
     const setupModeElement = document.querySelector('h2');
     if (setupModeElement) {
-        // console.log('Setup mode:', setupModeElement.textContent.includes('Setup'));
-		console.log(gettext('Setup mode:'), setupModeElement.textContent.includes('Setup'));  // 수정: 번역 함수 사용
+		console.log(gettext('Setup mode:'), setupModeElement.textContent.includes('Setup'));  
     }
 
     const verifyButton = document.getElementById("verify2FAButton");
@@ -23,21 +18,17 @@ document.addEventListener("DOMContentLoaded", function() {
             verify2FA();
         });
     } else {
-        // console.error("Verify button not found in the DOM");
-		console.error(gettext("Verify button not found in the DOM"));  // 수정: 번역 함수 사용
+		console.error(gettext("Verify button not found in the DOM"));  
     }
 
     const usernameInput = document.getElementById('username');
     if (usernameInput) {
-        // console.log("Username from hidden input:", usernameInput.value);
-		console.log(gettext("Username from hidden input:"), usernameInput.value);  // 수정: 번역 함수 사용
+		console.log(gettext("Username from hidden input:"), usernameInput.value);  
     } else {
-        // console.error("Username input not found in the DOM");
-		console.error(gettext("Username input not found in the DOM"));  // 수정: 번역 함수 사용
+		console.error(gettext("Username input not found in the DOM"));  
     }
 });
 
-// 입력 유효성 검사
 function validateInputs() {
     const otpInput = document.getElementById('otp');
     const usernameInput = document.getElementById('username');
@@ -66,7 +57,6 @@ function validateInputs() {
     return { otpCode, username };
 }
 
-// 2FA 검증 요청 보내기
 async function send2FAVerificationRequest(otpCode, username) {
     const csrfToken = getCsrfToken();
     const requestBody = { otp_code: otpCode, username: username };
@@ -93,7 +83,6 @@ async function send2FAVerificationRequest(otpCode, username) {
     return response;
 }
 
-// 응답 처리
 function handle2FAResponse(response, data) {
     console.log(gettext('Response data:'), data);
 
@@ -107,20 +96,18 @@ function handle2FAResponse(response, data) {
         } else {
             console.error(gettext('2FA message or setup element not found'));
         }
-        alert("2FA verification successful. Redirecting to main page...");
+        alert(gettext("2FA verification successful. Redirecting to main page..."));
         setTimeout(() => {
             console.log(gettext('Redirecting to main page'));
             window.location.href = '/';
         }, 5000);
     } else {
         console.error(gettext('Error verifying OTP:'), data.error);
-        alert(gettext('Invalid OTP. Please try again.'));
+        alert(gettext(gettext('Invalid OTP. Please try again.')));
     }
 }
 
-// 메인 verify2FA 함수
 async function verify2FA() {
-    alert(gettext('Verifying 2FA...'));
     const inputs = validateInputs();
     if (!inputs) return;
 
@@ -130,7 +117,6 @@ async function verify2FA() {
         handle2FAResponse(response, data);
     } catch (error) {
         console.error(gettext('Error:'), error);
-        alert(gettext('An error occurred. Please try again.'));
     }
 }
 
@@ -139,8 +125,7 @@ function getCsrfToken() {
     if (metaTag) {
         return metaTag.getAttribute('content');
     } else {
-        // console.error('CSRF token meta tag not found');
-		console.error(gettext('CSRF token meta tag not found'));  // 수정: 번역 함수 사용
+		console.error(gettext('CSRF token meta tag not found'));  
         return null;
     }
 }
